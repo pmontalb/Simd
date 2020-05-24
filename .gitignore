@@ -1,3 +1,6 @@
 .idea
+*.swp
+*.swo
+*.swn
 
 cmake-build-*
