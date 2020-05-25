@@ -1,5 +1,6 @@
 #pragma once
 
+#include "AlignedAllocator.h"
 #define USE_SSE2
 
 #if defined(__clang__)
@@ -9,6 +10,8 @@
 	#pragma clang diagnostic ignored "-Wcast-qual"
 	#include "sse_mathfun.h"
 	#pragma clang diagnostic pop
+#elif defined(__INTEL_COMPILER)
+	#include "sse_mathfun.h"
 #elif defined(__GNUC__)
 	#pragma GCC diagnostic push
 	#pragma GCC diagnostic ignored "-Wold-style-cast"
@@ -138,7 +141,7 @@ namespace simd
 			}
 		};
 
-		static inline bool isAligned(const void* ptr, const size_t alignment = 16) noexcept
+		static inline bool isAligned(const void* ptr, const size_t alignment) noexcept
 		{
 			auto uintPtr = reinterpret_cast<std::uintptr_t>(ptr);
 			return !(uintPtr % alignment);
@@ -149,33 +152,37 @@ namespace simd
 		class Double2: public detail::IArithmeticType<Double2>
 		{
 			friend class detail::IArithmeticType<Double2>;
+			static constexpr size_t alignment = { 16 };
 		public:
-			struct __attribute__((aligned(16))) AlignedArray : public std::array<double, 2> { using std::array<double, 2>::array; };
+			inline static constexpr size_t Alignment() noexcept { return alignment; }
+			using AlignedVector = std::vector<double, AlignedAllocator<double, alignment>>;
+			struct __attribute__((aligned(alignment))) AlignedArray : public std::array<double, 2> { using std::array<double, 2>::array; };
 
 			Double2() noexcept = default;
-			explicit Double2(const double x, const double y) noexcept
+			inline explicit Double2(const double x, const double y) noexcept
 			{
 				_value = _mm_set_pd(y, x);  // that's how the values are stored!
 			}
-			explicit Double2(AlignedArray&& xy) noexcept
+			inline explicit Double2(AlignedArray&& xy) noexcept
 				: Double2(xy.data())
 			{
 			}
-			explicit Double2(double* xy) noexcept
+			inline explicit Double2(double* xy) noexcept
 			{
-				assert(detail::isAligned(xy));
+				assert(detail::isAligned(xy, alignment));
 				_value = _mm_load_pd(xy);
 			}
 
-			void Get(double& x, double& y) const noexcept
+			inline void Get(double& x, double& y) const noexcept
 			{
 				//_mm_store1_pd(&x, _value);
 				x = _value[0];
 				y = _value[1];
 			}
-			void Get(AlignedArray& xy) const noexcept
+			inline void Get(AlignedArray& xy) const noexcept { Get(xy.data()); }
+			inline void Get(double* xy) const noexcept
 			{
-				_mm_store_pd(xy.data(), _value);
+				_mm_store_pd(xy, _value);
 			}
 
 			inline Double2 SquareRoot() const noexcept
@@ -186,6 +193,7 @@ namespace simd
 			}
 
 		private:
+
 			inline Double2& AddEqualImpl(const Double2& rhs) noexcept
 			{
 				_value = _mm_add_pd(_value, rhs._value);
@@ -245,34 +253,38 @@ namespace simd
 		class Float4: public detail::IArithmeticType<Float4>
 		{
 			friend class detail::IArithmeticType<Float4>;
+			static constexpr size_t alignment = { 16 };
 		public:
-			struct __attribute__((aligned(16))) AlignedArray : public std::array<float, 4> {};
+			inline static constexpr size_t Alignment() noexcept { return alignment; }
+			using AlignedVector = std::vector<float, AlignedAllocator<float, alignment>>;
+			struct __attribute__((aligned(alignment))) AlignedArray : public std::array<float, 4> {};
 
 			Float4() noexcept = default;
-			explicit Float4(const float x, const float y, const float z, const float t) noexcept
+			inline explicit Float4(const float x, const float y, const float z, const float t) noexcept
 			{
 				_value = _mm_set_ps(t, z, y, x);
 			}
-			explicit Float4(AlignedArray&& xy) noexcept
+			inline explicit Float4(AlignedArray&& xy) noexcept
 				: Float4(xy.data())
 			{
 			}
-			explicit Float4(float* xy) noexcept
+			inline explicit Float4(float* xy) noexcept
 			{
-				assert(detail::isAligned(xy));
+				assert(detail::isAligned(xy, alignment));
 				_value = _mm_load_ps(xy);
 			}
 
-			void Get(float& x, float& y, float& z, float& t) const noexcept
+			inline void Get(float& x, float& y, float& z, float& t) const noexcept
 			{
 				x = _value[0];
 				y = _value[1];
 				z = _value[2];
 				t = _value[3];
 			}
-			void Get(AlignedArray& xy) const noexcept
+			inline void Get(AlignedArray& xy) const noexcept { Get(xy.data()); }
+			inline void Get(float* xy) const noexcept
 			{
-				_mm_store_ps(xy.data(), _value);
+				_mm_store_ps(xy, _value);
 			}
 
 			// using sse_mathfun
@@ -373,25 +385,28 @@ namespace simd
 		class Double4: public detail::IArithmeticType<Double4>
 		{
 			friend class detail::IArithmeticType<Double4>;
+			static constexpr size_t alignment = { 32 };
 		public:
-			struct __attribute__((aligned(16))) AlignedArray : public std::array<double, 4> { using std::array<double, 4>::array; };
+			inline static constexpr size_t Alignment() noexcept { return alignment; }
+			using AlignedVector = std::vector<double, AlignedAllocator<float, alignment>>;
+			struct __attribute__((aligned(alignment))) AlignedArray : public std::array<double, 4> { using std::array<double, 4>::array; };
 
 			Double4() noexcept = default;
-			explicit Double4(const double x, const double y, const double z, const double t) noexcept
+			inline explicit Double4(const double x, const double y, const double z, const double t) noexcept
 			{
 				_value = _mm256_set_pd(t, z, y, x);  // that's how the values are stored!
 			}
-			explicit Double4(AlignedArray&& xy) noexcept
+			inline explicit Double4(AlignedArray&& xy) noexcept
 				: Double4(xy.data())
 			{
 			}
-			explicit Double4(double* xy) noexcept
+			inline explicit Double4(double* xy) noexcept
 			{
-				assert(detail::isAligned(xy));
+				assert(detail::isAligned(xy, alignment));
 				_value = _mm256_load_pd(xy);
 			}
 
-			void Get(double& x, double& y, double& z, double& t) const noexcept
+			inline void Get(double& x, double& y, double& z, double& t) const noexcept
 			{
 				//_mm_store1_pd(&x, _value);
 				x = _value[0];
@@ -399,7 +414,8 @@ namespace simd
 				z = _value[2];
 				t = _value[3];
 			}
-			void Get(AlignedArray& xy) const noexcept
+			inline void Get(AlignedArray& xy) const noexcept { Get(xy.data()); }
+			inline void Get(double* xy) const noexcept
 			{
 				_mm256_store_pd(xy.data(), _value);
 			}
@@ -412,6 +428,8 @@ namespace simd
 			}
 
 		private:
+			inline constexpr size_t AlignmentImpl() noexcept { return alignment; }
+
 			inline Double4& AddEqualImpl(const Double4& rhs) noexcept
 			{
 				_value = _mm256_add_pd(_value, rhs._value);
@@ -474,23 +492,27 @@ namespace simd
 		class Float8: public detail::IArithmeticType<Float8>
 		{
 			friend class detail::IArithmeticType<Float8>;
+			static constexpr size_t alignment = { 32 };
 		public:
-			struct __attribute__((aligned(16))) AlignedArray : public std::array<float, 8> {};
+			inline static constexpr size_t Alignment() noexcept { return alignment; }
+			using AlignedVector = std::vector<float, AlignedAllocator<float, alignment>>;
+			struct __attribute__((aligned(alignment))) AlignedArray : public std::array<float, 8> {};
 
 			Float8() noexcept = default;
-			explicit Float8(AlignedArray&& xy) noexcept
+			inline explicit Float8(AlignedArray&& xy) noexcept
 					: Float8(xy.data())
 			{
 			}
-			explicit Float8(float* xy) noexcept
+			inline explicit Float8(float* xy) noexcept
 			{
-				assert(detail::isAligned(xy));
+				assert(detail::isAligned(xy, alignment));
 				_value = _mm256_load_ps(xy);
 			}
 			
-			void Get(AlignedArray& xy) const noexcept
+			inline void Get(AlignedArray& xy) const noexcept { Get(xy.data()); }
+			inline void Get(float* xy) const noexcept
 			{
-				_mm256_store_ps(xy.data(), _value);
+				_mm256_store_ps(xy, _value);
 			}
 			
 			inline Float8 SquareRoot() const noexcept

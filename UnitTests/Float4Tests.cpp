@@ -335,4 +335,28 @@ namespace simdt
 		for (size_t i = 0; i < ys.size(); ++i)
 			ASSERT_FLOAT_EQ(ys[i], std::cos(xs[i]));
 	}
+
+	TEST_F(Float4Tests, VectorOperations)
+	{
+		simd::Float4::AlignedVector vec(128, 1.0);
+		vec.resize(257, 1.0);
+
+		simd::Float4 one(1.0, 1.0, 1.0, 1.0);
+		for (size_t i = 0; i < (vec.size() + 3) / 4; ++i)
+		{
+			if (4 * i <= vec.size() - 4)
+			{
+				simd::Float4 x(vec.data() + 4 * i);
+				x += one;
+				x.Get(vec.data() + 4 * i);
+			}
+			else
+			{
+				std::fill(vec.begin() + static_cast<long long>(4 * i), vec.end(), 2.0);
+			}
+		}
+
+		for (size_t i = 0; i < vec.size(); ++i)
+			ASSERT_DOUBLE_EQ(vec[i], 2.0) << i;
+	}
 }

@@ -9,7 +9,7 @@ create_library(
 	NAME
 		Simd
 	SOURCES
-		Simd.h
+		Simd.h AlignedAllocator.h
 )
 set_target_properties(Simd PROPERTIES LINKER_LANGUAGE CXX)
 
@@ -30,4 +30,24 @@ create_test(
 		.
 	SYSTEM_DEPENDENCIES
 		gtest pthread
+)
+
+add_subdirectory(Profiler ${CMAKE_BINARY_DIR}/Profiler EXCLUDE_FROM_ALL)
+
+create_executable(
+	NAME
+		Benchmark
+	SOURCES
+		benchmarkVector.cpp
+	DEPENDENCIES
+		Simd Profiler
+)
+
+create_executable(
+	NAME
+		BenchmarkVector
+	SOURCES
+		benchmarkVector.cpp
+	DEPENDENCIES
+		Simd Profiler
 )

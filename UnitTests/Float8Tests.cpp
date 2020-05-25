@@ -176,6 +176,31 @@ namespace simdt
 		for (size_t i = 0; i < zs.size(); ++i)
 			ASSERT_FLOAT_EQ(zs[i], std::sqrt(xs[i]));
 	}
+
+	TEST_F(Float8Tests, VectorOperations)
+	{
+		simd::Float8::AlignedVector vec(33, 1.0);
+
+		simd::Float8::AlignedArray oneTmp;
+		oneTmp.fill(1.0);
+		simd::Float8 one(std::move(oneTmp));
+		for (size_t i = 0; i < (vec.size() + 7) / 8; ++i)
+		{
+			if (8 * i <= vec.size() - 8)
+			{
+				simd::Float8 x(vec.data() + 8 * i);
+				x += one;
+				x.Get(vec.data() + 8 * i);
+			}
+			else
+			{
+				std::fill(vec.begin() + static_cast<long long>(8 * i), vec.end(), 2.0);
+			}
+		}
+
+		for (size_t i = 0; i < vec.size(); ++i)
+			ASSERT_DOUBLE_EQ(vec[i], 2.0) << i;
+	}
 }
 
 #endif
