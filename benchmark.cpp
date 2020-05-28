@@ -110,6 +110,64 @@ public:
 	const simd::Float4 one { 1.0, 1.0, 1.0, 1.0 };
 };
 
+class GroupingDouble2Profiler: public perf::Profiler<GroupingDouble2Profiler, Config>
+{
+	friend class perf::Profiler<GroupingDouble2Profiler, Config>;
+public:
+	using perf::Profiler<GroupingDouble2Profiler, Config>::Profiler;
+	std::string GetId() const noexcept { return "SIMD GROUP D2"; }
+private:
+	inline void OnStartImpl() noexcept { }
+
+	inline void OnEndImpl() noexcept { }
+
+	inline void RunImpl() noexcept
+	{
+		auto x = simd::Double2(x1, x2);
+		x += simd::Double2(x3, x4);
+		x.Get(x1, x2);
+
+		x = simd::sqrt(x);
+		x.Get(x3, x4);
+	}
+
+public:
+	double x1 = 2.0;
+	double x2 = 3.0;
+
+	double x3 = 4.0;
+	double x4 = 5.0;
+};
+
+class TwoDoubleGroupingProfiler: public perf::Profiler<TwoDoubleGroupingProfiler, Config>
+{
+	friend class perf::Profiler<TwoDoubleGroupingProfiler, Config>;
+public:
+	using perf::Profiler<TwoDoubleGroupingProfiler, Config>::Profiler;
+	std::string GetId() const noexcept { return "Scalar GROUP D2"; }
+private:
+	inline void OnStartImpl() noexcept { }
+
+	inline void OnEndImpl() noexcept { }
+
+	inline void RunImpl() noexcept
+	{
+		x1 += x3;
+		x2 += x4;
+
+		x3 = std::sqrt(x1);
+		x4 = std::sqrt(x2);
+	}
+
+public:
+	double x1 = 2.0;
+	double x2 = 3.0;
+
+	double x3 = 4.0;
+	double x4 = 5.0;
+};
+
+
 template<typename Profiler1T, typename Profiler2T>
 void Run(const clp::CommandLineArgumentParser& ap)
 {
@@ -127,8 +185,10 @@ void Run(const clp::CommandLineArgumentParser& ap)
 
 	if (ap.GetFlag("-v"))
 	{
+		std::cout << "*****" << profilerSimd.GetId() << "*****" << std::endl;
 		profilerSimd.Print();
-		std::cout << "simd::x1=" << profilerSimd.x1 << "|simd::x2=" << profilerSimd.x2 << std::endl;
+		std::cout << "x1=" << profilerSimd.x1 << "|x2=" << profilerSimd.x2 << std::endl;
+		std::cout << "**********" << std::endl;
 	}
 	else if (ap.GetFlag("-py"))
 	{
@@ -143,8 +203,10 @@ void Run(const clp::CommandLineArgumentParser& ap)
 
 	if (ap.GetFlag("-v"))
 	{
+		std::cout << "*****" << profilerScalar.GetId() << "*****" << std::endl;
 		profilerScalar.Print();
 		std::cout << "x1=" << profilerScalar.x1 << "|x2=" << profilerScalar.x2 << std::endl;
+		std::cout << "**********" << std::endl;
 	}
 	else if (ap.GetFlag("-py"))
 	{
@@ -166,8 +228,15 @@ int main(int argc, char** argv)
 	else if (ap.GetArgumentValue<std::string>("-mode") == "F4")
 	{
 		if (ap.GetFlag("-reverse"))
-			Run<Float4Profiler, FourFloatProfiler>(ap);
-		else
 			Run<FourFloatProfiler, Float4Profiler>(ap);
+		else
+			Run<Float4Profiler, FourFloatProfiler>(ap);
+	}
+	else if (ap.GetArgumentValue<std::string>("-mode") == "GD2")
+	{
+		if (ap.GetFlag("-reverse"))
+			Run<TwoDoubleGroupingProfiler, GroupingDouble2Profiler>(ap);
+		else
+			Run<GroupingDouble2Profiler, TwoDoubleGroupingProfiler>(ap);
 	}
 }

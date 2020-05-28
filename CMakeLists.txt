@@ -38,7 +38,7 @@ create_executable(
 	NAME
 		Benchmark
 	SOURCES
-		benchmarkVector.cpp
+		benchmark.cpp
 	DEPENDENCIES
 		Simd Profiler
 )

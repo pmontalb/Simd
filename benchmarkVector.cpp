@@ -218,8 +218,10 @@ void Run(const clp::CommandLineArgumentParser& ap)
 
 	if (ap.GetFlag("-v"))
 	{
+		std::cout << "*****" << profilerSimd.GetId() << "*****" << std::endl;
 		profilerSimd.Print();
-		std::cout << "simd::x1=" << profilerSimd.vector[0] << std::endl;
+		std::cout << "x1=" << profilerSimd.vector[0] << std::endl;
+		std::cout << "**********" << std::endl;
 	}
 	else if (ap.GetFlag("-py"))
 	{
@@ -234,8 +236,10 @@ void Run(const clp::CommandLineArgumentParser& ap)
 
 	if (ap.GetFlag("-v"))
 	{
+		std::cout << "*****" << profilerScalar.GetId() << "*****" << std::endl;
 		profilerScalar.Print();
-		std::cout << "scalar::x1=" << profilerScalar.vector[0] << std::endl;
+		std::cout << "x1=" << profilerScalar.vector[0] << std::endl;
+		std::cout << "**********" << std::endl;
 	}
 	else if (ap.GetFlag("-py"))
 	{
