@@ -25,6 +25,7 @@
 
 #include <type_traits>
 #include <array>
+#include <vector>
 #include <cassert>
 
 #include <x86intrin.h>
@@ -216,14 +217,18 @@ namespace simd
 		public:
 			inline static constexpr size_t Alignment() noexcept { return alignment; }
 			using AlignedVector = std::vector<double, AlignedAllocator<double, alignment>>;
-			struct __attribute__((aligned(alignment))) AlignedArray : public std::array<double, 2> { using std::array<double, 2>::array; };
+			template<size_t N = 2> struct __attribute__((aligned(alignment))) AlignedArray : public std::array<double, N> { using std::array<double, N>::array; };
 
 			Double2() noexcept = default;
+			inline explicit Double2(const double x) noexcept
+			{
+				_value = _mm_set_pd1(x);
+			}
 			inline explicit Double2(const double x, const double y) noexcept
 			{
 				_value = _mm_set_pd(y, x);  // that's how the values are stored!
 			}
-			inline explicit Double2(AlignedArray&& xy) noexcept
+			inline explicit Double2(AlignedArray<2>&& xy) noexcept
 				: Double2(xy.data())
 			{
 			}
@@ -239,9 +244,10 @@ namespace simd
 				x = _value[0];
 				y = _value[1];
 			}
-			inline void Get(AlignedArray& xy) const noexcept { Get(xy.data()); }
+			inline void Get(AlignedArray<2>& xy) const noexcept { Get(xy.data()); }
 			inline void Get(double* xy) const noexcept
 			{
+				assert(detail::isAligned(xy, alignment));
 				_mm_store_pd(xy, _value);
 			}
 
@@ -327,14 +333,18 @@ namespace simd
 		public:
 			inline static constexpr size_t Alignment() noexcept { return alignment; }
 			using AlignedVector = std::vector<float, AlignedAllocator<float, alignment>>;
-			struct __attribute__((aligned(alignment))) AlignedArray : public std::array<float, 4> {};
+			template<size_t N = 4> struct __attribute__((aligned(alignment))) AlignedArray : public std::array<float, N> { using std::array<float, N>::array; };
 
 			Float4() noexcept = default;
+			inline explicit Float4(const float x) noexcept
+			{
+				_value = _mm_set_ps1(x);
+			}
 			inline explicit Float4(const float x, const float y, const float z, const float t) noexcept
 			{
 				_value = _mm_set_ps(t, z, y, x);
 			}
-			inline explicit Float4(AlignedArray&& xy) noexcept
+			inline explicit Float4(AlignedArray<4>&& xy) noexcept
 				: Float4(xy.data())
 			{
 			}
@@ -351,9 +361,10 @@ namespace simd
 				z = _value[2];
 				t = _value[3];
 			}
-			inline void Get(AlignedArray& xy) const noexcept { Get(xy.data()); }
+			inline void Get(AlignedArray<4>& xy) const noexcept { Get(xy.data()); }
 			inline void Get(float* xy) const noexcept
 			{
+				assert(detail::isAligned(xy, alignment));
 				_mm_store_ps(xy, _value);
 			}
 
@@ -474,7 +485,7 @@ namespace simd
 		public:
 			inline static constexpr size_t Alignment() noexcept { return alignment; }
 			using AlignedVector = std::vector<double, AlignedAllocator<float, alignment>>;
-			struct __attribute__((aligned(alignment))) AlignedArray : public std::array<double, 4> { using std::array<double, 4>::array; };
+			template<size_t N = 4> struct __attribute__((aligned(alignment))) AlignedArray : public std::array<double, N> { using std::array<double, N>::array; };
 
 			Double4() noexcept = default;
 			inline explicit Double4(const double x, const double y, const double z, const double t) noexcept
@@ -588,10 +599,10 @@ namespace simd
 		public:
 			inline static constexpr size_t Alignment() noexcept { return alignment; }
 			using AlignedVector = std::vector<float, AlignedAllocator<float, alignment>>;
-			struct __attribute__((aligned(alignment))) AlignedArray : public std::array<float, 8> {};
+			template<size_t N = 8> struct __attribute__((aligned(alignment))) AlignedArray : public std::array<float, N> { using std::array<float, N>::array; };
 
 			Float8() noexcept = default;
-			inline explicit Float8(AlignedArray&& xy) noexcept
+			inline explicit Float8(AlignedArray<8>&& xy) noexcept
 					: Float8(xy.data())
 			{
 			}
@@ -601,9 +612,10 @@ namespace simd
 				_value = _mm256_load_ps(xy);
 			}
 			
-			inline void Get(AlignedArray& xy) const noexcept { Get(xy.data()); }
+			inline void Get(AlignedArray<8>& xy) const noexcept { Get(xy.data()); }
 			inline void Get(float* xy) const noexcept
 			{
+				assert(detail::isAligned(xy, alignment));
 				_mm256_store_ps(xy, _value);
 			}
 			

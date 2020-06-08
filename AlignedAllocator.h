@@ -2,9 +2,11 @@
 
 /* Adapted from https://stackoverflow.com/questions/12942548/making-stdvector-allocate-aligned-memory */
 
+#include <memory>
+
 namespace detail {
 	template<size_t Align>
-	static inline void* allocate_aligned_memory(size_t size) noexcept
+	static inline void* AllocateAlignedMemory(size_t size) noexcept
 	{
 		static_assert(Align >= sizeof(void*), "Align < sizeof(void*)");
 		static_assert(Align >= 0 && (Align & (Align - 1)) == 0, "Align not a power of 2");
@@ -19,7 +21,7 @@ namespace detail {
 
 		return ptr;
 	}
-	static inline void deallocate_aligned_memory(void* ptr) noexcept { free(ptr); }
+	static inline void DeallocateAlignedMemory(void* ptr) noexcept { free(ptr); }
 }
 
 template <typename T, size_t Align>
@@ -71,13 +73,13 @@ public:
 
 	inline auto allocate(size_type n, typename AlignedAllocator<void, Align>::const_pointer = nullptr) const
 	{
-		void* ptr = detail::allocate_aligned_memory<Align>(n * sizeof(T));
+		void* ptr = detail::AllocateAlignedMemory<Align>(n * sizeof(T));
 		if (!ptr)
 			throw std::bad_alloc();
 		return reinterpret_cast<pointer>(ptr);
 	}
 
-	void deallocate(pointer p, size_type) const noexcept { detail::deallocate_aligned_memory(p); }
+	void deallocate(pointer p, size_type) const noexcept { detail::DeallocateAlignedMemory(p); }
 
 	template <class U, class ...Args>
 	void construct(U* p, Args&&... args) const noexcept { ::new(reinterpret_cast<void*>(p)) U(std::forward<Args>(args)...); }
@@ -115,13 +117,13 @@ public:
 
 	inline auto allocate(size_type n, typename AlignedAllocator<void, Align>::const_pointer = nullptr) const
 	{
-		void* ptr = detail::allocate_aligned_memory<Align>(n * sizeof(T));
+		void* ptr = detail::AllocateAlignedMemory<Align>(n * sizeof(T));
 		if (!ptr)
 			throw std::bad_alloc();
 		return reinterpret_cast<pointer>(ptr);
 	}
 
-	void deallocate(pointer p, size_type) noexcept { detail::deallocate_aligned_memory(p); }
+	void deallocate(pointer p, size_type) noexcept { detail::DeallocateAlignedMemory(p); }
 
 	template <class U, class ...Args>
 	void
