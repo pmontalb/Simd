@@ -21,6 +21,11 @@
 	#pragma GCC diagnostic ignored "-Wmissing-declarations"
 	#include "sse_mathfun.h"
 	#pragma GCC diagnostic pop
+#elif defined(_MSC_VER)
+	#pragma warning( push )
+	#pragma warning( disable : 4305)
+	#include "sse_mathfun.h"
+	#pragma warning( pop )
 #endif
 
 #include <type_traits>
@@ -28,7 +33,18 @@
 #include <vector>
 #include <cassert>
 
-#include <x86intrin.h>
+#ifndef _MSC_VER
+	#include <x86intrin.h>
+	#define ALIGNAS(ALIGNMENT) __attribute__((aligned(ALIGNMENT)))
+#else
+	#include <intrin.h>
+
+	#if (defined(_M_AMD64) || defined(_M_X64))
+		#define __SSE2__
+	#endif
+
+	#define ALIGNAS(ALIGNMENT) __declspec(align(ALIGNMENT))
+#endif
 
 namespace simd
 {
@@ -217,7 +233,7 @@ namespace simd
 		public:
 			inline static constexpr size_t Alignment() noexcept { return alignment; }
 			using AlignedVector = std::vector<double, AlignedAllocator<double, alignment>>;
-			template<size_t N = 2> struct __attribute__((aligned(alignment))) AlignedArray : public std::array<double, N> { using std::array<double, N>::array; };
+			template<size_t N = 2> struct ALIGNAS(alignment) AlignedArray : public std::array<double, N> { using std::array<double, N>::array; };
 
 			Double2() noexcept = default;
 			inline explicit Double2(const double x) noexcept
@@ -240,9 +256,14 @@ namespace simd
 
 			inline void Get(double& x, double& y) const noexcept
 			{
-				//_mm_store1_pd(&x, _value);
-				x = _value[0];
-				y = _value[1];
+				#ifndef _MSC_VER
+					x = _value[0];
+					y = _value[1];
+				#else
+					const auto* val = reinterpret_cast<const double*>(&_value);
+					x = val[0];
+					y = val[1];
+				#endif
 			}
 			inline void Get(AlignedArray<2>& xy) const noexcept { Get(xy.data()); }
 			inline void Get(double* xy) const noexcept
@@ -333,7 +354,7 @@ namespace simd
 		public:
 			inline static constexpr size_t Alignment() noexcept { return alignment; }
 			using AlignedVector = std::vector<float, AlignedAllocator<float, alignment>>;
-			template<size_t N = 4> struct __attribute__((aligned(alignment))) AlignedArray : public std::array<float, N> { using std::array<float, N>::array; };
+			template<size_t N = 4> struct ALIGNAS(alignment) AlignedArray : public std::array<float, N> { using std::array<float, N>::array; };
 
 			Float4() noexcept = default;
 			inline explicit Float4(const float x) noexcept
@@ -356,10 +377,18 @@ namespace simd
 
 			inline void Get(float& x, float& y, float& z, float& t) const noexcept
 			{
-				x = _value[0];
-				y = _value[1];
-				z = _value[2];
-				t = _value[3];
+				#ifndef _MSC_VER
+					x = _value[0];
+					y = _value[1];
+					z = _value[2];
+					t = _value[3];
+				#else
+					const auto* val = reinterpret_cast<const float*>(&_value);
+					x = val[0];
+					y = val[1];
+					z = val[2];
+					t = val[3];
+				#endif
 			}
 			inline void Get(AlignedArray<4>& xy) const noexcept { Get(xy.data()); }
 			inline void Get(float* xy) const noexcept
@@ -485,7 +514,7 @@ namespace simd
 		public:
 			inline static constexpr size_t Alignment() noexcept { return alignment; }
 			using AlignedVector = std::vector<double, AlignedAllocator<float, alignment>>;
-			template<size_t N = 4> struct __attribute__((aligned(alignment))) AlignedArray : public std::array<double, N> { using std::array<double, N>::array; };
+			template<size_t N = 4> struct ALIGNAS(alignment) AlignedArray : public std::array<double, N> { using std::array<double, N>::array; };
 
 			Double4() noexcept = default;
 			inline explicit Double4(const double x, const double y, const double z, const double t) noexcept
@@ -599,7 +628,7 @@ namespace simd
 		public:
 			inline static constexpr size_t Alignment() noexcept { return alignment; }
 			using AlignedVector = std::vector<float, AlignedAllocator<float, alignment>>;
-			template<size_t N = 8> struct __attribute__((aligned(alignment))) AlignedArray : public std::array<float, N> { using std::array<float, N>::array; };
+			template<size_t N = 8> struct ALIGNAS(alignment) AlignedArray : public std::array<float, N> { using std::array<float, N>::array; };
 
 			Float8() noexcept = default;
 			inline explicit Float8(AlignedArray<8>&& xy) noexcept

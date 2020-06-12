@@ -15,9 +15,13 @@ namespace detail {
 			return nullptr;
 
 		void* ptr;
-		const auto err = posix_memalign(&ptr, Align, size);
-		if (err != 0)
-			return nullptr;
+		#ifndef _MSC_VER
+			const auto err = posix_memalign(&ptr, Align, size);
+			if (err != 0)
+				return nullptr;
+		#else
+			ptr = _aligned_malloc(size, Align);
+		#endif
 
 		return ptr;
 	}

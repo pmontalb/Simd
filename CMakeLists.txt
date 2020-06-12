@@ -13,6 +13,7 @@ create_library(
 )
 set_target_properties(Simd PROPERTIES LINKER_LANGUAGE CXX)
 
+add_subdirectory(gtest ${CMAKE_BINARY_DIR}/Simd/gtest EXCLUDE_FROM_ALL)
 create_test(
 	NAME
 		SimdTests
