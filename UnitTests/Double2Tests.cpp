@@ -2,9 +2,9 @@
 #include <gtest/gtest.h>
 
 #include <Simd.h>
-#include <AlignedAllocator.h>
 
 #include <cmath>
+#include <vector>
 
 namespace simdt
 {
@@ -245,16 +245,16 @@ namespace simdt
 
 	TEST_F(Double2Tests, VectorOperations)
 	{
-		simd::Double2::AlignedVector vec(17, 1.0);
+		std::vector<double> vec(17, 1.0);
 
 		simd::Double2 one(1.0, 1.0);
 		for (size_t i = 0; i < (vec.size() + 1) / 2; ++i)
 		{
 			if (2 * i <= vec.size() - 2)
 			{
-				simd::Double2 x(vec.data() + 2 * i);
+				auto x = simd::LoadUnaligned<double, 2>(vec.data() + 2 * i);
 				x += one;
-				x.Get(vec.data() + 2 * i);
+				simd::StoreUnaligned(vec.data() + 2 * i, x);
 			}
 			else
 			{

@@ -338,21 +338,21 @@ namespace simdt
 
 	TEST_F(Float4Tests, VectorOperations)
 	{
-		simd::Float4::AlignedVector vec(128, 1.0);
-		vec.resize(257, 1.0);
+		std::vector<float> vec(128, 1.0f);
+		vec.resize(257, 1.0f);
 
-		simd::Float4 one(1.0, 1.0, 1.0, 1.0);
+		simd::Float4 one(1.0f, 1.0f, 1.0f, 1.0f);
 		for (size_t i = 0; i < (vec.size() + 3) / 4; ++i)
 		{
 			if (4 * i <= vec.size() - 4)
 			{
-				simd::Float4 x(vec.data() + 4 * i);
+				auto x = simd::LoadUnaligned<float, 4>(vec.data() + 4 * i);
 				x += one;
-				x.Get(vec.data() + 4 * i);
+				simd::StoreUnaligned(vec.data() + 4 * i, x);
 			}
 			else
 			{
-				std::fill(vec.begin() + static_cast<long long>(4 * i), vec.end(), 2.0);
+				std::fill(vec.begin() + static_cast<long long>(4 * i), vec.end(), 2.0f);
 			}
 		}
 

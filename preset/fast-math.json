@@ -1,0 +1,65 @@
+{
+  "version": 8,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 28,
+    "patch": 0
+  },
+  "include": [
+    "base.json",
+    "gcc.json",
+    "clang.json",
+    "icc.json",
+    "aocc.json",
+    "emscripten.json"
+  ],
+  "configurePresets": [
+    {
+      "name": "fast-math",
+      "hidden": true,
+      "inherits": "release",
+      "displayName": "Fast-Math Template",
+      "description": "O3 + aggressive fast-math + vector math lib (replaces deprecated -Ofast)",
+      "cacheVariables": {
+        "OPTIMIZATIONS_USE_FAST_MATH": "ON",
+        "OPTIMIZATIONS_USE_VECTOR_MATH_LIB": "ON"
+      }
+    },
+    {
+      "name": "fast-math-safe",
+      "hidden": true,
+      "inherits": "release",
+      "displayName": "Safe Fast-Math Template",
+      "description": "O3 + associative/reciprocal/FMA fast-math while preserving NaN/Inf",
+      "cacheVariables": {
+        "OPTIMIZATIONS_USE_FAST_MATH_SAFE": "ON",
+        "OPTIMIZATIONS_USE_VECTOR_MATH_LIB": "ON"
+      }
+    },
+    { "name": "gcc-fast-math", "displayName": "GCC Fast-Math", "inherits": ["gcc", "fast-math"] },
+    { "name": "gcc-fast-math-safe", "displayName": "GCC Safe Fast-Math", "inherits": ["gcc", "fast-math-safe"] },
+    { "name": "clang-fast-math", "displayName": "Clang Fast-Math", "inherits": ["clang", "fast-math"] },
+    { "name": "clang-fast-math-safe", "displayName": "Clang Safe Fast-Math", "inherits": ["clang", "fast-math-safe"] },
+    { "name": "icpx-fast-math", "displayName": "Intel icpx Fast-Math", "inherits": ["icpx", "fast-math"] },
+    { "name": "aocc-fast-math", "displayName": "AMD AOCC Fast-Math", "inherits": ["aocc", "fast-math"] },
+    { "name": "emscripten-fast-math", "displayName": "Emscripten Fast-Math", "inherits": ["emscripten", "fast-math"] }
+  ],
+  "buildPresets": [
+    { "name": "gcc-fast-math", "configurePreset": "gcc-fast-math" },
+    { "name": "gcc-fast-math-safe", "configurePreset": "gcc-fast-math-safe" },
+    { "name": "clang-fast-math", "configurePreset": "clang-fast-math" },
+    { "name": "clang-fast-math-safe", "configurePreset": "clang-fast-math-safe" },
+    { "name": "icpx-fast-math", "configurePreset": "icpx-fast-math" },
+    { "name": "aocc-fast-math", "configurePreset": "aocc-fast-math" },
+    { "name": "emscripten-fast-math", "configurePreset": "emscripten-fast-math" }
+  ],
+  "testPresets": [
+    { "name": "gcc-fast-math", "configurePreset": "gcc-fast-math", "output": { "outputOnFailure": true } },
+    { "name": "gcc-fast-math-safe", "configurePreset": "gcc-fast-math-safe", "output": { "outputOnFailure": true } },
+    { "name": "clang-fast-math", "configurePreset": "clang-fast-math", "output": { "outputOnFailure": true } },
+    { "name": "clang-fast-math-safe", "configurePreset": "clang-fast-math-safe", "output": { "outputOnFailure": true } },
+    { "name": "icpx-fast-math", "configurePreset": "icpx-fast-math", "output": { "outputOnFailure": true } },
+    { "name": "aocc-fast-math", "configurePreset": "aocc-fast-math", "output": { "outputOnFailure": true } },
+    { "name": "emscripten-fast-math", "configurePreset": "emscripten-fast-math", "output": { "outputOnFailure": true } }
+  ]
+}

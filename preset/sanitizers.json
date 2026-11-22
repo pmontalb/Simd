@@ -1,0 +1,128 @@
+{
+  "version": 8,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 28,
+    "patch": 0
+  },
+  "include": [
+    "base.json",
+    "gcc.json",
+    "clang.json",
+    "icc.json",
+    "aocc.json"
+  ],
+  "configurePresets": [
+    {
+      "name": "asan",
+      "hidden": true,
+      "inherits": "debug",
+      "description": "AddressSanitizer template",
+      "cacheVariables": { "CMAKE_BUILD_TYPE": "Asan", "DEBUG_USE_STL_DEBUG": "OFF" }
+    },
+    {
+      "name": "ubsan",
+      "hidden": true,
+      "inherits": "debug",
+      "description": "UndefinedBehaviorSanitizer template",
+      "cacheVariables": { "CMAKE_BUILD_TYPE": "Ubsan", "DEBUG_USE_STL_DEBUG": "OFF" }
+    },
+    {
+      "name": "tsan",
+      "hidden": true,
+      "inherits": "debug",
+      "description": "ThreadSanitizer template",
+      "cacheVariables": { "CMAKE_BUILD_TYPE": "Tsan", "DEBUG_USE_STL_DEBUG": "OFF" }
+    },
+    {
+      "name": "msan",
+      "hidden": true,
+      "inherits": "debug",
+      "description": "MemorySanitizer template (Clang/AOCC only)",
+      "cacheVariables": { "CMAKE_BUILD_TYPE": "Msan", "DEBUG_USE_STL_DEBUG": "OFF" }
+    },
+    {
+      "name": "lsan",
+      "hidden": true,
+      "inherits": "debug",
+      "description": "LeakSanitizer template",
+      "cacheVariables": { "CMAKE_BUILD_TYPE": "Lsan", "DEBUG_USE_STL_DEBUG": "OFF" }
+    },
+    {
+      "name": "asan-ubsan",
+      "hidden": true,
+      "inherits": "debug",
+      "description": "Combined ASan + UBSan template",
+      "cacheVariables": { "CMAKE_BUILD_TYPE": "AsanUbsan", "DEBUG_USE_STL_DEBUG": "OFF" }
+    },
+    {
+      "name": "coverage",
+      "hidden": true,
+      "inherits": "debug",
+      "description": "Code coverage instrumentation template",
+      "cacheVariables": { "CMAKE_BUILD_TYPE": "Coverage", "DEBUG_USE_STL_DEBUG": "OFF" }
+    },
+
+    { "name": "gcc-asan", "displayName": "GCC ASan", "inherits": ["gcc", "asan"] },
+    { "name": "gcc-ubsan", "displayName": "GCC UBSan", "inherits": ["gcc", "ubsan"] },
+    { "name": "gcc-tsan", "displayName": "GCC TSan", "inherits": ["gcc", "tsan"] },
+    { "name": "gcc-lsan", "displayName": "GCC LSan", "inherits": ["gcc", "lsan"] },
+    { "name": "gcc-asan-ubsan", "displayName": "GCC ASan+UBSan", "inherits": ["gcc", "asan-ubsan"] },
+    { "name": "gcc-coverage", "displayName": "GCC Coverage", "inherits": ["gcc", "coverage"] },
+
+    { "name": "clang-asan", "displayName": "Clang ASan", "inherits": ["clang", "asan"] },
+    { "name": "clang-ubsan", "displayName": "Clang UBSan", "inherits": ["clang", "ubsan"] },
+    { "name": "clang-tsan", "displayName": "Clang TSan", "inherits": ["clang", "tsan"] },
+    { "name": "clang-msan", "displayName": "Clang MSan", "inherits": ["clang", "msan"] },
+    { "name": "clang-lsan", "displayName": "Clang LSan", "inherits": ["clang", "lsan"] },
+    { "name": "clang-asan-ubsan", "displayName": "Clang ASan+UBSan", "inherits": ["clang", "asan-ubsan"] },
+    { "name": "clang-coverage", "displayName": "Clang Coverage", "inherits": ["clang", "coverage"] },
+
+    { "name": "icpx-asan", "displayName": "Intel icpx ASan", "inherits": ["icpx", "asan"] },
+    { "name": "icpx-ubsan", "displayName": "Intel icpx UBSan", "inherits": ["icpx", "ubsan"] },
+    { "name": "aocc-asan", "displayName": "AMD AOCC ASan", "inherits": ["aocc", "asan"] },
+    { "name": "aocc-ubsan", "displayName": "AMD AOCC UBSan", "inherits": ["aocc", "ubsan"] }
+  ],
+  "buildPresets": [
+    { "name": "gcc-asan", "configurePreset": "gcc-asan" },
+    { "name": "gcc-ubsan", "configurePreset": "gcc-ubsan" },
+    { "name": "gcc-tsan", "configurePreset": "gcc-tsan" },
+    { "name": "gcc-lsan", "configurePreset": "gcc-lsan" },
+    { "name": "gcc-asan-ubsan", "configurePreset": "gcc-asan-ubsan" },
+    { "name": "gcc-coverage", "configurePreset": "gcc-coverage" },
+
+    { "name": "clang-asan", "configurePreset": "clang-asan" },
+    { "name": "clang-ubsan", "configurePreset": "clang-ubsan" },
+    { "name": "clang-tsan", "configurePreset": "clang-tsan" },
+    { "name": "clang-msan", "configurePreset": "clang-msan" },
+    { "name": "clang-lsan", "configurePreset": "clang-lsan" },
+    { "name": "clang-asan-ubsan", "configurePreset": "clang-asan-ubsan" },
+    { "name": "clang-coverage", "configurePreset": "clang-coverage" },
+
+    { "name": "icpx-asan", "configurePreset": "icpx-asan" },
+    { "name": "icpx-ubsan", "configurePreset": "icpx-ubsan" },
+    { "name": "aocc-asan", "configurePreset": "aocc-asan" },
+    { "name": "aocc-ubsan", "configurePreset": "aocc-ubsan" }
+  ],
+  "testPresets": [
+    { "name": "gcc-asan", "configurePreset": "gcc-asan", "output": { "outputOnFailure": true } },
+    { "name": "gcc-ubsan", "configurePreset": "gcc-ubsan", "output": { "outputOnFailure": true } },
+    { "name": "gcc-tsan", "configurePreset": "gcc-tsan", "output": { "outputOnFailure": true } },
+    { "name": "gcc-lsan", "configurePreset": "gcc-lsan", "output": { "outputOnFailure": true } },
+    { "name": "gcc-asan-ubsan", "configurePreset": "gcc-asan-ubsan", "output": { "outputOnFailure": true } },
+    { "name": "gcc-coverage", "configurePreset": "gcc-coverage", "output": { "outputOnFailure": true } },
+
+    { "name": "clang-asan", "configurePreset": "clang-asan", "output": { "outputOnFailure": true } },
+    { "name": "clang-ubsan", "configurePreset": "clang-ubsan", "output": { "outputOnFailure": true } },
+    { "name": "clang-tsan", "configurePreset": "clang-tsan", "output": { "outputOnFailure": true } },
+    { "name": "clang-msan", "configurePreset": "clang-msan", "output": { "outputOnFailure": true } },
+    { "name": "clang-lsan", "configurePreset": "clang-lsan", "output": { "outputOnFailure": true } },
+    { "name": "clang-asan-ubsan", "configurePreset": "clang-asan-ubsan", "output": { "outputOnFailure": true } },
+    { "name": "clang-coverage", "configurePreset": "clang-coverage", "output": { "outputOnFailure": true } },
+
+    { "name": "icpx-asan", "configurePreset": "icpx-asan", "output": { "outputOnFailure": true } },
+    { "name": "icpx-ubsan", "configurePreset": "icpx-ubsan", "output": { "outputOnFailure": true } },
+    { "name": "aocc-asan", "configurePreset": "aocc-asan", "output": { "outputOnFailure": true } },
+    { "name": "aocc-ubsan", "configurePreset": "aocc-ubsan", "output": { "outputOnFailure": true } }
+  ]
+}

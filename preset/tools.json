@@ -1,0 +1,116 @@
+{
+  "version": 8,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 28,
+    "patch": 0
+  },
+  "include": [
+    "base.json",
+    "gcc.json",
+    "clang.json"
+  ],
+  "configurePresets": [
+    {
+      "name": "clang-tidy",
+      "hidden": true,
+      "inherits": "debug",
+      "displayName": "Clang-Tidy Template",
+      "description": "Runs clang-tidy static analysis on every translation unit",
+      "cacheVariables": {
+        "TOOLS_USE_CLANG_TIDY": "ON",
+        "BUILD_SYSTEM_USE_CCACHE": "OFF"
+      }
+    },
+    {
+      "name": "clang-tidy-strict",
+      "hidden": true,
+      "inherits": "clang-tidy",
+      "description": "Runs clang-tidy treating warnings as errors",
+      "cacheVariables": {
+        "TOOLS_CLANG_TIDY_WERROR": "ON"
+      }
+    },
+    {
+      "name": "clang-tidy-fix",
+      "hidden": true,
+      "inherits": "clang-tidy",
+      "description": "Runs clang-tidy and automatically applies fixes",
+      "cacheVariables": {
+        "TOOLS_CLANG_TIDY_FIX": "ON"
+      }
+    },
+    {
+      "name": "clang-tidy-clang",
+      "displayName": "Clang-Tidy (Clang)",
+      "inherits": ["clang", "clang-tidy"]
+    },
+    {
+      "name": "clang-tidy-gcc",
+      "displayName": "Clang-Tidy (GCC)",
+      "inherits": ["gcc", "clang-tidy"],
+      "cacheVariables": {
+        "CMAKE_CXX_SCAN_FOR_MODULES": "OFF"
+      }
+    },
+    {
+      "name": "clang-tidy-strict-clang",
+      "displayName": "Clang-Tidy Strict (Clang)",
+      "inherits": ["clang", "clang-tidy-strict"]
+    },
+    {
+      "name": "dependency-graph",
+      "displayName": "Target Dependency Graph (Graphviz)",
+      "description": "Generates CMake target dependency graph (.dot / .svg / .png) in build/graph/",
+      "inherits": ["clang", "debug"],
+      "cacheVariables": {
+        "TOOLS_ENABLE_DEPENDENCY_GRAPH": "ON"
+      }
+    },
+    {
+      "name": "clang-iwyu",
+      "displayName": "Include-What-You-Use (Clang)",
+      "description": "Runs include-what-you-use on all translation units",
+      "inherits": ["clang", "debug"],
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "IWYU",
+        "TOOLS_USE_IWYU": "ON",
+        "BUILD_SYSTEM_USE_CCACHE": "OFF"
+      }
+    },
+    {
+      "name": "clang-time-trace",
+      "displayName": "Compile Time Trace (-ftime-trace)",
+      "description": "Emits JSON build flamegraphs per translation unit for ClangBuildAnalyzer",
+      "inherits": ["clang", "release"],
+      "cacheVariables": {
+        "TOOLS_TIME_TRACE": "ON",
+        "BUILD_SYSTEM_USE_CCACHE": "OFF"
+      }
+    }
+  ],
+  "buildPresets": [
+    { "name": "clang-tidy-clang", "configurePreset": "clang-tidy-clang" },
+    { "name": "clang-tidy-gcc", "configurePreset": "clang-tidy-gcc" },
+    { "name": "clang-tidy-strict-clang", "configurePreset": "clang-tidy-strict-clang" },
+    { "name": "dependency-graph", "configurePreset": "dependency-graph", "targets": ["dependency_graph"] },
+    { "name": "clang-iwyu", "configurePreset": "clang-iwyu" },
+    { "name": "clang-time-trace", "configurePreset": "clang-time-trace" }
+  ],
+  "workflowPresets": [
+    {
+      "name": "dependency-graph",
+      "steps": [
+        { "type": "configure", "name": "dependency-graph" },
+        { "type": "build", "name": "dependency-graph" }
+      ]
+    },
+    {
+      "name": "clang-tidy",
+      "steps": [
+        { "type": "configure", "name": "clang-tidy-clang" },
+        { "type": "build", "name": "clang-tidy-clang" }
+      ]
+    }
+  ]
+}

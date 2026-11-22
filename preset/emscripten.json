@@ -1,0 +1,40 @@
+{
+  "version": 8,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 28,
+    "patch": 0
+  },
+  "include": [
+    "base.json"
+  ],
+  "configurePresets": [
+    {
+      "name": "emscripten",
+      "hidden": true,
+      "inherits": "base",
+      "description": "Base Emscripten (em++) WebAssembly preset (requires EMSDK environment variable)",
+      "toolchainFile": "$env{EMSDK}/upstream/emscripten/cmake/Modules/Platform/Emscripten.cmake",
+      "cacheVariables": {
+        "COMPILER_FLAVOR": "Emscripten",
+        "LANGUAGES_USE_64_BITS": "OFF",
+        "EMSCRIPTEN_USE_SIMD": "ON",
+        "EMSCRIPTEN_USE_WASM_EXCEPTIONS": "ON",
+        "OPTIMIZATIONS_USE_NATIVE_ARCHITECTURE": "OFF"
+      }
+    },
+    { "name": "emscripten-debug", "displayName": "Emscripten Debug", "inherits": ["emscripten", "debug"] },
+    { "name": "emscripten-release", "displayName": "Emscripten Release", "inherits": ["emscripten", "release"] },
+    { "name": "emscripten-minsizerel", "displayName": "Emscripten MinSizeRel", "inherits": ["emscripten", "minsizerel"] }
+  ],
+  "buildPresets": [
+    { "name": "emscripten-debug", "configurePreset": "emscripten-debug" },
+    { "name": "emscripten-release", "configurePreset": "emscripten-release" },
+    { "name": "emscripten-minsizerel", "configurePreset": "emscripten-minsizerel" }
+  ],
+  "testPresets": [
+    { "name": "emscripten-debug", "configurePreset": "emscripten-debug", "output": { "outputOnFailure": true } },
+    { "name": "emscripten-release", "configurePreset": "emscripten-release", "output": { "outputOnFailure": true } },
+    { "name": "emscripten-minsizerel", "configurePreset": "emscripten-minsizerel", "output": { "outputOnFailure": true } }
+  ]
+}

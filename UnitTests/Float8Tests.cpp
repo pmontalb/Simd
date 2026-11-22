@@ -179,22 +179,22 @@ namespace simdt
 
 	TEST_F(Float8Tests, VectorOperations)
 	{
-		simd::Float8::AlignedVector vec(33, 1.0);
+		std::vector<float> vec(33, 1.0f);
 
 		simd::Float8::AlignedArray oneTmp;
-		oneTmp.fill(1.0);
+		oneTmp.fill(1.0f);
 		simd::Float8 one(std::move(oneTmp));
 		for (size_t i = 0; i < (vec.size() + 7) / 8; ++i)
 		{
 			if (8 * i <= vec.size() - 8)
 			{
-				simd::Float8 x(vec.data() + 8 * i);
+				auto x = simd::LoadUnaligned<float, 8>(vec.data() + 8 * i);
 				x += one;
-				x.Get(vec.data() + 8 * i);
+				simd::StoreUnaligned(vec.data() + 8 * i, x);
 			}
 			else
 			{
-				std::fill(vec.begin() + static_cast<long long>(8 * i), vec.end(), 2.0);
+				std::fill(vec.begin() + static_cast<long long>(8 * i), vec.end(), 2.0f);
 			}
 		}
 

@@ -1,0 +1,84 @@
+{
+  "version": 8,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 28,
+    "patch": 0
+  },
+  "include": [
+    "base.json",
+    "gcc.json",
+    "clang.json",
+    "fast-math.json",
+    "sanitizers.json"
+  ],
+  "configurePresets": [
+    {
+      "name": "cuda",
+      "hidden": true,
+      "displayName": "CUDA Template",
+      "description": "Enables CUDA language support (nvcc) targeting native GPU architecture",
+      "cacheVariables": {
+        "LANGUAGES_USE_CUDA": "ON",
+        "LANGUAGES_CUDA_ARCHITECTURE": "native",
+        "CMAKE_CUDA_ARCHITECTURES": "native"
+      }
+    },
+    {
+      "name": "gcc-cuda",
+      "hidden": true,
+      "inherits": ["gcc", "cuda"],
+      "description": "GCC + CUDA (nvcc with g++ host compiler)",
+      "cacheVariables": {
+        "CMAKE_CUDA_HOST_COMPILER": "g++"
+      }
+    },
+    {
+      "name": "clang-cuda",
+      "hidden": true,
+      "inherits": ["clang", "cuda"],
+      "description": "Clang + CUDA (nvcc with clang++ host compiler)",
+      "cacheVariables": {
+        "CMAKE_CUDA_HOST_COMPILER": "clang++"
+      }
+    },
+
+    { "name": "gcc-cuda-debug", "displayName": "GCC CUDA Debug", "inherits": ["gcc-cuda", "debug"] },
+    { "name": "gcc-cuda-release", "displayName": "GCC CUDA Release", "inherits": ["gcc-cuda", "release"] },
+    { "name": "gcc-cuda-profile", "displayName": "GCC CUDA Profile", "inherits": ["gcc-cuda", "profile"] },
+    { "name": "gcc-cuda-asan", "displayName": "GCC CUDA ASan", "inherits": ["gcc-cuda", "asan"] },
+    { "name": "gcc-cuda-fast-math", "displayName": "GCC CUDA Fast-Math", "inherits": ["gcc-cuda", "fast-math"] },
+
+    { "name": "clang-cuda-debug", "displayName": "Clang CUDA Debug", "inherits": ["clang-cuda", "debug"] },
+    { "name": "clang-cuda-release", "displayName": "Clang CUDA Release", "inherits": ["clang-cuda", "release"] },
+    { "name": "clang-cuda-profile", "displayName": "Clang CUDA Profile", "inherits": ["clang-cuda", "profile"] },
+    { "name": "clang-cuda-asan", "displayName": "Clang CUDA ASan", "inherits": ["clang-cuda", "asan"] },
+    { "name": "clang-cuda-fast-math", "displayName": "Clang CUDA Fast-Math", "inherits": ["clang-cuda", "fast-math"] }
+  ],
+  "buildPresets": [
+    { "name": "gcc-cuda-debug", "configurePreset": "gcc-cuda-debug" },
+    { "name": "gcc-cuda-release", "configurePreset": "gcc-cuda-release" },
+    { "name": "gcc-cuda-profile", "configurePreset": "gcc-cuda-profile" },
+    { "name": "gcc-cuda-asan", "configurePreset": "gcc-cuda-asan" },
+    { "name": "gcc-cuda-fast-math", "configurePreset": "gcc-cuda-fast-math" },
+
+    { "name": "clang-cuda-debug", "configurePreset": "clang-cuda-debug" },
+    { "name": "clang-cuda-release", "configurePreset": "clang-cuda-release" },
+    { "name": "clang-cuda-profile", "configurePreset": "clang-cuda-profile" },
+    { "name": "clang-cuda-asan", "configurePreset": "clang-cuda-asan" },
+    { "name": "clang-cuda-fast-math", "configurePreset": "clang-cuda-fast-math" }
+  ],
+  "testPresets": [
+    { "name": "gcc-cuda-debug", "configurePreset": "gcc-cuda-debug", "output": { "outputOnFailure": true } },
+    { "name": "gcc-cuda-release", "configurePreset": "gcc-cuda-release", "output": { "outputOnFailure": true } },
+    { "name": "gcc-cuda-profile", "configurePreset": "gcc-cuda-profile", "output": { "outputOnFailure": true } },
+    { "name": "gcc-cuda-asan", "configurePreset": "gcc-cuda-asan", "output": { "outputOnFailure": true } },
+    { "name": "gcc-cuda-fast-math", "configurePreset": "gcc-cuda-fast-math", "output": { "outputOnFailure": true } },
+
+    { "name": "clang-cuda-debug", "configurePreset": "clang-cuda-debug", "output": { "outputOnFailure": true } },
+    { "name": "clang-cuda-release", "configurePreset": "clang-cuda-release", "output": { "outputOnFailure": true } },
+    { "name": "clang-cuda-profile", "configurePreset": "clang-cuda-profile", "output": { "outputOnFailure": true } },
+    { "name": "clang-cuda-asan", "configurePreset": "clang-cuda-asan", "output": { "outputOnFailure": true } },
+    { "name": "clang-cuda-fast-math", "configurePreset": "clang-cuda-fast-math", "output": { "outputOnFailure": true } }
+  ]
+}

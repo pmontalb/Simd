@@ -1,0 +1,40 @@
+{
+  "version": 8,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 28,
+    "patch": 0
+  },
+  "include": [
+    "base.json"
+  ],
+  "configurePresets": [
+    {
+      "name": "gcc",
+      "hidden": true,
+      "inherits": "base",
+      "description": "Base GCC toolchain preset",
+      "cacheVariables": {
+        "CMAKE_C_COMPILER": "gcc",
+        "CMAKE_CXX_COMPILER": "g++",
+        "COMPILER_FLAVOR": "GCC"
+      }
+    },
+    { "name": "gcc-debug", "displayName": "GCC Debug", "inherits": ["gcc", "debug"] },
+    { "name": "gcc-release", "displayName": "GCC Release", "inherits": ["gcc", "release"] },
+    { "name": "gcc-minsizerel", "displayName": "GCC MinSizeRel", "inherits": ["gcc", "minsizerel"] },
+    { "name": "gcc-profile", "displayName": "GCC Profile", "inherits": ["gcc", "profile"] }
+  ],
+  "buildPresets": [
+    { "name": "gcc-debug", "configurePreset": "gcc-debug" },
+    { "name": "gcc-release", "configurePreset": "gcc-release" },
+    { "name": "gcc-minsizerel", "configurePreset": "gcc-minsizerel" },
+    { "name": "gcc-profile", "configurePreset": "gcc-profile" }
+  ],
+  "testPresets": [
+    { "name": "gcc-debug", "configurePreset": "gcc-debug", "output": { "outputOnFailure": true } },
+    { "name": "gcc-release", "configurePreset": "gcc-release", "output": { "outputOnFailure": true } },
+    { "name": "gcc-minsizerel", "configurePreset": "gcc-minsizerel", "output": { "outputOnFailure": true } },
+    { "name": "gcc-profile", "configurePreset": "gcc-profile", "output": { "outputOnFailure": true } }
+  ]
+}

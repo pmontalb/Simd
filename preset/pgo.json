@@ -1,0 +1,188 @@
+{
+  "version": 8,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 28,
+    "patch": 0
+  },
+  "include": [
+    "base.json",
+    "gcc.json",
+    "clang.json",
+    "icc.json",
+    "aocc.json",
+    "fast-math.json",
+    "lto.json"
+  ],
+  "configurePresets": [
+    {
+      "name": "pgo-train",
+      "hidden": true,
+      "inherits": "release",
+      "displayName": "PGO Train Template",
+      "description": "Stage 1: Build instrumented binary to collect runtime profile data",
+      "cacheVariables": {
+        "OPTIMIZATIONS_PGO_MODE": "GENERATE"
+      }
+    },
+    {
+      "name": "pgo-opti",
+      "hidden": true,
+      "inherits": "release",
+      "displayName": "PGO Optimize Template",
+      "description": "Stage 2: Optimize binary using collected profile data (for Clang/icpx/AOCC, run llvm-profdata merge first)",
+      "cacheVariables": {
+        "OPTIMIZATIONS_PGO_MODE": "USE"
+      }
+    },
+
+    { "name": "gcc-pgo-train", "displayName": "GCC PGO Train", "binaryDir": "${sourceDir}/cmake-build-gcc-pgo", "inherits": ["gcc", "pgo-train"] },
+    { "name": "gcc-pgo-opti", "displayName": "GCC PGO Optimize", "binaryDir": "${sourceDir}/cmake-build-gcc-pgo", "inherits": ["gcc", "pgo-opti"] },
+    { "name": "clang-pgo-train", "displayName": "Clang PGO Train", "binaryDir": "${sourceDir}/cmake-build-clang-pgo", "inherits": ["clang", "pgo-train"] },
+    { "name": "clang-pgo-opti", "displayName": "Clang PGO Optimize", "binaryDir": "${sourceDir}/cmake-build-clang-pgo", "inherits": ["clang", "pgo-opti"] },
+    { "name": "icpx-pgo-train", "displayName": "Intel icpx PGO Train", "binaryDir": "${sourceDir}/cmake-build-icpx-pgo", "inherits": ["icpx", "pgo-train"] },
+    { "name": "icpx-pgo-opti", "displayName": "Intel icpx PGO Optimize", "binaryDir": "${sourceDir}/cmake-build-icpx-pgo", "inherits": ["icpx", "pgo-opti"] },
+    { "name": "aocc-pgo-train", "displayName": "AMD AOCC PGO Train", "binaryDir": "${sourceDir}/cmake-build-aocc-pgo", "inherits": ["aocc", "pgo-train"] },
+    { "name": "aocc-pgo-opti", "displayName": "AMD AOCC PGO Optimize", "binaryDir": "${sourceDir}/cmake-build-aocc-pgo", "inherits": ["aocc", "pgo-opti"] },
+
+    { "name": "gcc-lto-pgo-train", "displayName": "GCC LTO + PGO Train", "binaryDir": "${sourceDir}/cmake-build-gcc-lto-pgo", "inherits": ["gcc", "lto", "pgo-train"] },
+    { "name": "gcc-lto-pgo-opti", "displayName": "GCC LTO + PGO Optimize", "binaryDir": "${sourceDir}/cmake-build-gcc-lto-pgo", "inherits": ["gcc", "lto", "pgo-opti"] },
+    { "name": "clang-lto-pgo-train", "displayName": "Clang LTO + PGO Train", "binaryDir": "${sourceDir}/cmake-build-clang-lto-pgo", "inherits": ["clang", "lto", "pgo-train"] },
+    { "name": "clang-lto-pgo-opti", "displayName": "Clang LTO + PGO Optimize", "binaryDir": "${sourceDir}/cmake-build-clang-lto-pgo", "inherits": ["clang", "lto", "pgo-opti"] },
+    { "name": "icpx-lto-pgo-train", "displayName": "Intel icpx LTO + PGO Train", "binaryDir": "${sourceDir}/cmake-build-icpx-lto-pgo", "inherits": ["icpx", "lto", "pgo-train"] },
+    { "name": "icpx-lto-pgo-opti", "displayName": "Intel icpx LTO + PGO Optimize", "binaryDir": "${sourceDir}/cmake-build-icpx-lto-pgo", "inherits": ["icpx", "lto", "pgo-opti"] },
+    { "name": "aocc-lto-pgo-train", "displayName": "AMD AOCC LTO + PGO Train", "binaryDir": "${sourceDir}/cmake-build-aocc-lto-pgo", "inherits": ["aocc", "lto", "pgo-train"] },
+    { "name": "aocc-lto-pgo-opti", "displayName": "AMD AOCC LTO + PGO Optimize", "binaryDir": "${sourceDir}/cmake-build-aocc-lto-pgo", "inherits": ["aocc", "lto", "pgo-opti"] },
+
+    { "name": "gcc-lto-pgo-fast-math-train", "displayName": "GCC LTO + PGO + Fast-Math Train", "binaryDir": "${sourceDir}/cmake-build-gcc-lto-pgo-fast-math", "inherits": ["gcc", "lto", "fast-math", "pgo-train"] },
+    { "name": "gcc-lto-pgo-fast-math-opti", "displayName": "GCC LTO + PGO + Fast-Math Optimize", "binaryDir": "${sourceDir}/cmake-build-gcc-lto-pgo-fast-math", "inherits": ["gcc", "lto", "fast-math", "pgo-opti"] },
+    { "name": "clang-lto-pgo-fast-math-train", "displayName": "Clang LTO + PGO + Fast-Math Train", "binaryDir": "${sourceDir}/cmake-build-clang-lto-pgo-fast-math", "inherits": ["clang", "lto", "fast-math", "pgo-train"] },
+    { "name": "clang-lto-pgo-fast-math-opti", "displayName": "Clang LTO + PGO + Fast-Math Optimize", "binaryDir": "${sourceDir}/cmake-build-clang-lto-pgo-fast-math", "inherits": ["clang", "lto", "fast-math", "pgo-opti"] },
+    { "name": "icpx-lto-pgo-fast-math-train", "displayName": "Intel icpx LTO + PGO + Fast-Math Train", "binaryDir": "${sourceDir}/cmake-build-icpx-lto-pgo-fast-math", "inherits": ["icpx", "lto", "fast-math", "pgo-train"] },
+    { "name": "icpx-lto-pgo-fast-math-opti", "displayName": "Intel icpx LTO + PGO + Fast-Math Optimize", "binaryDir": "${sourceDir}/cmake-build-icpx-lto-pgo-fast-math", "inherits": ["icpx", "lto", "fast-math", "pgo-opti"] },
+    { "name": "aocc-lto-pgo-fast-math-train", "displayName": "AMD AOCC LTO + PGO + Fast-Math Train", "binaryDir": "${sourceDir}/cmake-build-aocc-lto-pgo-fast-math", "inherits": ["aocc", "lto", "fast-math", "pgo-train"] },
+    { "name": "aocc-lto-pgo-fast-math-opti", "displayName": "AMD AOCC LTO + PGO + Fast-Math Optimize", "binaryDir": "${sourceDir}/cmake-build-aocc-lto-pgo-fast-math", "inherits": ["aocc", "lto", "fast-math", "pgo-opti"] }
+  ],
+  "buildPresets": [
+    { "name": "gcc-pgo-train", "configurePreset": "gcc-pgo-train" },
+    { "name": "gcc-pgo-opti", "configurePreset": "gcc-pgo-opti" },
+    { "name": "clang-pgo-train", "configurePreset": "clang-pgo-train" },
+    { "name": "clang-pgo-opti", "configurePreset": "clang-pgo-opti" },
+    { "name": "icpx-pgo-train", "configurePreset": "icpx-pgo-train" },
+    { "name": "icpx-pgo-opti", "configurePreset": "icpx-pgo-opti" },
+    { "name": "aocc-pgo-train", "configurePreset": "aocc-pgo-train" },
+    { "name": "aocc-pgo-opti", "configurePreset": "aocc-pgo-opti" },
+
+    { "name": "gcc-lto-pgo-train", "configurePreset": "gcc-lto-pgo-train" },
+    { "name": "gcc-lto-pgo-opti", "configurePreset": "gcc-lto-pgo-opti" },
+    { "name": "clang-lto-pgo-train", "configurePreset": "clang-lto-pgo-train" },
+    { "name": "clang-lto-pgo-opti", "configurePreset": "clang-lto-pgo-opti" },
+    { "name": "icpx-lto-pgo-train", "configurePreset": "icpx-lto-pgo-train" },
+    { "name": "icpx-lto-pgo-opti", "configurePreset": "icpx-lto-pgo-opti" },
+    { "name": "aocc-lto-pgo-train", "configurePreset": "aocc-lto-pgo-train" },
+    { "name": "aocc-lto-pgo-opti", "configurePreset": "aocc-lto-pgo-opti" },
+
+    { "name": "gcc-lto-pgo-fast-math-train", "configurePreset": "gcc-lto-pgo-fast-math-train" },
+    { "name": "gcc-lto-pgo-fast-math-opti", "configurePreset": "gcc-lto-pgo-fast-math-opti" },
+    { "name": "clang-lto-pgo-fast-math-train", "configurePreset": "clang-lto-pgo-fast-math-train" },
+    { "name": "clang-lto-pgo-fast-math-opti", "configurePreset": "clang-lto-pgo-fast-math-opti" },
+    { "name": "icpx-lto-pgo-fast-math-train", "configurePreset": "icpx-lto-pgo-fast-math-train" },
+    { "name": "icpx-lto-pgo-fast-math-opti", "configurePreset": "icpx-lto-pgo-fast-math-opti" },
+    { "name": "aocc-lto-pgo-fast-math-train", "configurePreset": "aocc-lto-pgo-fast-math-train" },
+    { "name": "aocc-lto-pgo-fast-math-opti", "configurePreset": "aocc-lto-pgo-fast-math-opti" }
+  ],
+  "testPresets": [
+    { "name": "gcc-pgo-train", "configurePreset": "gcc-pgo-train", "output": { "outputOnFailure": true } },
+    { "name": "gcc-pgo-opti", "configurePreset": "gcc-pgo-opti", "output": { "outputOnFailure": true } },
+    { "name": "clang-pgo-train", "configurePreset": "clang-pgo-train", "output": { "outputOnFailure": true } },
+    { "name": "clang-pgo-opti", "configurePreset": "clang-pgo-opti", "output": { "outputOnFailure": true } },
+    { "name": "icpx-pgo-train", "configurePreset": "icpx-pgo-train", "output": { "outputOnFailure": true } },
+    { "name": "icpx-pgo-opti", "configurePreset": "icpx-pgo-opti", "output": { "outputOnFailure": true } },
+    { "name": "aocc-pgo-train", "configurePreset": "aocc-pgo-train", "output": { "outputOnFailure": true } },
+    { "name": "aocc-pgo-opti", "configurePreset": "aocc-pgo-opti", "output": { "outputOnFailure": true } },
+
+    { "name": "gcc-lto-pgo-train", "configurePreset": "gcc-lto-pgo-train", "output": { "outputOnFailure": true } },
+    { "name": "gcc-lto-pgo-opti", "configurePreset": "gcc-lto-pgo-opti", "output": { "outputOnFailure": true } },
+    { "name": "clang-lto-pgo-train", "configurePreset": "clang-lto-pgo-train", "output": { "outputOnFailure": true } },
+    { "name": "clang-lto-pgo-opti", "configurePreset": "clang-lto-pgo-opti", "output": { "outputOnFailure": true } },
+    { "name": "icpx-lto-pgo-train", "configurePreset": "icpx-lto-pgo-train", "output": { "outputOnFailure": true } },
+    { "name": "icpx-lto-pgo-opti", "configurePreset": "icpx-lto-pgo-opti", "output": { "outputOnFailure": true } },
+    { "name": "aocc-lto-pgo-train", "configurePreset": "aocc-lto-pgo-train", "output": { "outputOnFailure": true } },
+    { "name": "aocc-lto-pgo-opti", "configurePreset": "aocc-lto-pgo-opti", "output": { "outputOnFailure": true } },
+
+    { "name": "gcc-lto-pgo-fast-math-train", "configurePreset": "gcc-lto-pgo-fast-math-train", "output": { "outputOnFailure": true } },
+    { "name": "gcc-lto-pgo-fast-math-opti", "configurePreset": "gcc-lto-pgo-fast-math-opti", "output": { "outputOnFailure": true } },
+    { "name": "clang-lto-pgo-fast-math-train", "configurePreset": "clang-lto-pgo-fast-math-train", "output": { "outputOnFailure": true } },
+    { "name": "clang-lto-pgo-fast-math-opti", "configurePreset": "clang-lto-pgo-fast-math-opti", "output": { "outputOnFailure": true } },
+    { "name": "icpx-lto-pgo-fast-math-train", "configurePreset": "icpx-lto-pgo-fast-math-train", "output": { "outputOnFailure": true } },
+    { "name": "icpx-lto-pgo-fast-math-opti", "configurePreset": "icpx-lto-pgo-fast-math-opti", "output": { "outputOnFailure": true } },
+    { "name": "aocc-lto-pgo-fast-math-train", "configurePreset": "aocc-lto-pgo-fast-math-train", "output": { "outputOnFailure": true } },
+    { "name": "aocc-lto-pgo-fast-math-opti", "configurePreset": "aocc-lto-pgo-fast-math-opti", "output": { "outputOnFailure": true } }
+  ],
+  "workflowPresets": [
+    {
+      "name": "gcc-pgo-train",
+      "steps": [
+        { "type": "configure", "name": "gcc-pgo-train" },
+        { "type": "build", "name": "gcc-pgo-train" },
+        { "type": "test", "name": "gcc-pgo-train" }
+      ]
+    },
+    {
+      "name": "gcc-pgo-opti",
+      "steps": [
+        { "type": "configure", "name": "gcc-pgo-opti" },
+        { "type": "build", "name": "gcc-pgo-opti" },
+        { "type": "test", "name": "gcc-pgo-opti" }
+      ]
+    },
+    {
+      "name": "clang-pgo-train",
+      "steps": [
+        { "type": "configure", "name": "clang-pgo-train" },
+        { "type": "build", "name": "clang-pgo-train" },
+        { "type": "test", "name": "clang-pgo-train" }
+      ]
+    },
+    {
+      "name": "clang-pgo-opti",
+      "steps": [
+        { "type": "configure", "name": "clang-pgo-opti" },
+        { "type": "build", "name": "clang-pgo-opti" },
+        { "type": "test", "name": "clang-pgo-opti" }
+      ]
+    },
+    {
+      "name": "gcc-lto-pgo-train",
+      "steps": [
+        { "type": "configure", "name": "gcc-lto-pgo-train" },
+        { "type": "build", "name": "gcc-lto-pgo-train" },
+        { "type": "test", "name": "gcc-lto-pgo-train" }
+      ]
+    },
+    {
+      "name": "gcc-lto-pgo-opti",
+      "steps": [
+        { "type": "configure", "name": "gcc-lto-pgo-opti" },
+        { "type": "build", "name": "gcc-lto-pgo-opti" },
+        { "type": "test", "name": "gcc-lto-pgo-opti" }
+      ]
+    },
+    {
+      "name": "gcc-lto-pgo-fast-math-train",
+      "steps": [
+        { "type": "configure", "name": "gcc-lto-pgo-fast-math-train" },
+        { "type": "build", "name": "gcc-lto-pgo-fast-math-train" },
+        { "type": "test", "name": "gcc-lto-pgo-fast-math-train" }
+      ]
+    },
+    {
+      "name": "gcc-lto-pgo-fast-math-opti",
+      "steps": [
+        { "type": "configure", "name": "gcc-lto-pgo-fast-math-opti" },
+        { "type": "build", "name": "gcc-lto-pgo-fast-math-opti" },
+        { "type": "test", "name": "gcc-lto-pgo-fast-math-opti" }
+      ]
+    }
+  ]
+}

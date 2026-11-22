@@ -1,0 +1,63 @@
+{
+  "version": 8,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 28,
+    "patch": 0
+  },
+  "include": [
+    "base.json",
+    "gcc.json",
+    "clang.json",
+    "icc.json",
+    "aocc.json",
+    "emscripten.json",
+    "fast-math.json"
+  ],
+  "configurePresets": [
+    {
+      "name": "lto",
+      "hidden": true,
+      "inherits": "release",
+      "displayName": "LTO Template",
+      "description": "Link-Time Optimization (control Thin vs Full via OPTIMIZATIONS_LTO_MODE=AUTO|THIN|FULL)",
+      "cacheVariables": {
+        "OPTIMIZATIONS_USE_LTO": "ON"
+      }
+    },
+    { "name": "gcc-lto", "displayName": "GCC LTO", "inherits": ["gcc", "lto"] },
+    { "name": "clang-lto", "displayName": "Clang LTO", "inherits": ["clang", "lto"] },
+    { "name": "icpx-lto", "displayName": "Intel icpx LTO", "inherits": ["icpx", "lto"] },
+    { "name": "aocc-lto", "displayName": "AMD AOCC LTO", "inherits": ["aocc", "lto"] },
+    { "name": "emscripten-lto", "displayName": "Emscripten LTO", "inherits": ["emscripten", "lto"] },
+    { "name": "gcc-lto-fast-math", "displayName": "GCC LTO + Fast-Math", "inherits": ["gcc", "lto", "fast-math"] },
+    { "name": "clang-lto-fast-math", "displayName": "Clang LTO + Fast-Math", "inherits": ["clang", "lto", "fast-math"] },
+    { "name": "icpx-lto-fast-math", "displayName": "Intel icpx LTO + Fast-Math", "inherits": ["icpx", "lto", "fast-math"] },
+    { "name": "aocc-lto-fast-math", "displayName": "AMD AOCC LTO + Fast-Math", "inherits": ["aocc", "lto", "fast-math"] },
+    { "name": "emscripten-lto-fast-math", "displayName": "Emscripten LTO + Fast-Math", "inherits": ["emscripten", "lto", "fast-math"] }
+  ],
+  "buildPresets": [
+    { "name": "gcc-lto", "configurePreset": "gcc-lto" },
+    { "name": "clang-lto", "configurePreset": "clang-lto" },
+    { "name": "icpx-lto", "configurePreset": "icpx-lto" },
+    { "name": "aocc-lto", "configurePreset": "aocc-lto" },
+    { "name": "emscripten-lto", "configurePreset": "emscripten-lto" },
+    { "name": "gcc-lto-fast-math", "configurePreset": "gcc-lto-fast-math" },
+    { "name": "clang-lto-fast-math", "configurePreset": "clang-lto-fast-math" },
+    { "name": "icpx-lto-fast-math", "configurePreset": "icpx-lto-fast-math" },
+    { "name": "aocc-lto-fast-math", "configurePreset": "aocc-lto-fast-math" },
+    { "name": "emscripten-lto-fast-math", "configurePreset": "emscripten-lto-fast-math" }
+  ],
+  "testPresets": [
+    { "name": "gcc-lto", "configurePreset": "gcc-lto", "output": { "outputOnFailure": true } },
+    { "name": "clang-lto", "configurePreset": "clang-lto", "output": { "outputOnFailure": true } },
+    { "name": "icpx-lto", "configurePreset": "icpx-lto", "output": { "outputOnFailure": true } },
+    { "name": "aocc-lto", "configurePreset": "aocc-lto", "output": { "outputOnFailure": true } },
+    { "name": "emscripten-lto", "configurePreset": "emscripten-lto", "output": { "outputOnFailure": true } },
+    { "name": "gcc-lto-fast-math", "configurePreset": "gcc-lto-fast-math", "output": { "outputOnFailure": true } },
+    { "name": "clang-lto-fast-math", "configurePreset": "clang-lto-fast-math", "output": { "outputOnFailure": true } },
+    { "name": "icpx-lto-fast-math", "configurePreset": "icpx-lto-fast-math", "output": { "outputOnFailure": true } },
+    { "name": "aocc-lto-fast-math", "configurePreset": "aocc-lto-fast-math", "output": { "outputOnFailure": true } },
+    { "name": "emscripten-lto-fast-math", "configurePreset": "emscripten-lto-fast-math", "output": { "outputOnFailure": true } }
+  ]
+}

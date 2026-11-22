@@ -1,0 +1,23 @@
+{
+  "version": 8,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 28,
+    "patch": 0
+  },
+  "include": [
+    "preset/base.json",
+    "preset/gcc.json",
+    "preset/clang.json",
+    "preset/icc.json",
+    "preset/aocc.json",
+    "preset/msvc.json",
+    "preset/emscripten.json",
+    "preset/cuda.json",
+    "preset/fast-math.json",
+    "preset/lto.json",
+    "preset/pgo.json",
+    "preset/sanitizers.json",
+    "preset/tools.json"
+  ]
+}

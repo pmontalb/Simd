@@ -1,0 +1,74 @@
+{
+  "version": 8,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 28,
+    "patch": 0
+  },
+  "configurePresets": [
+    {
+      "name": "base",
+      "hidden": true,
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/cmake-build-${presetName}",
+      "displayName": "Base Template",
+      "description": "Shared base configuration (set FLAGS_CPP_STANDARD=20|23|26 as needed)",
+      "cacheVariables": {
+        "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
+        "BUILD_SYSTEM_USE_CCACHE": "ON",
+        "LANGUAGES_USE_64_BITS": "ON",
+        "WARNINGS_TREAT_WARNINGS_AS_ERROR": "ON",
+        "WARNINGS_USE_PEDANTIC_WARNINGS": "ON",
+        "WARNINGS_USE_WALL_AND_WEXTRA": "ON"
+      }
+    },
+    {
+      "name": "debug",
+      "hidden": true,
+      "displayName": "Debug Template",
+      "description": "Unoptimized build with full debug symbols and STL debug checks",
+      "inherits": "base",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "DEBUG_USE_STL_DEBUG": "ON"
+      }
+    },
+    {
+      "name": "release",
+      "hidden": true,
+      "displayName": "Release Template",
+      "description": "O3 optimized build (toggle debug symbols via OPTIMIZATIONS_GENERATE_DEBUG_INFO=ON|OFF)",
+      "inherits": "base",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "OPTIMIZATIONS_USE_NATIVE_ARCHITECTURE": "ON",
+        "OPTIMIZATIONS_GENERATE_DEBUG_INFO": "ON",
+        "OPTIMIZATIONS_USE_SECTIONS_GC": "ON",
+        "OPTIMIZATIONS_NO_SEMANTIC_INTERPOSITION": "ON"
+      }
+    },
+    {
+      "name": "minsizerel",
+      "hidden": true,
+      "displayName": "MinSizeRel Template",
+      "description": "Size-optimized build with section GC and hidden visibility",
+      "inherits": "base",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "MinSizeRel",
+        "OPTIMIZATIONS_USE_SECTIONS_GC": "ON",
+        "OPTIMIZATIONS_HIDDEN_VISIBILITY": "ON"
+      }
+    },
+    {
+      "name": "profile",
+      "hidden": true,
+      "displayName": "Profile Template",
+      "description": "O3 Release build preserving frame pointers for perf/VTune profiling",
+      "inherits": "release",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Profile",
+        "OPTIMIZATIONS_DO_NOT_OMIT_FRAME_POINTER": "ON"
+      }
+    }
+  ]
+}

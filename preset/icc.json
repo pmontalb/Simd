@@ -1,0 +1,40 @@
+{
+  "version": 8,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 28,
+    "patch": 0
+  },
+  "include": [
+    "base.json"
+  ],
+  "configurePresets": [
+    {
+      "name": "icpx",
+      "hidden": true,
+      "inherits": "base",
+      "description": "Base Intel oneAPI icpx (IntelLLVM) toolchain preset",
+      "cacheVariables": {
+        "CMAKE_C_COMPILER": "icx",
+        "CMAKE_CXX_COMPILER": "icpx",
+        "COMPILER_FLAVOR": "IntelLLVM"
+      }
+    },
+    { "name": "icpx-debug", "displayName": "Intel icpx Debug", "inherits": ["icpx", "debug"] },
+    { "name": "icpx-release", "displayName": "Intel icpx Release", "inherits": ["icpx", "release"] },
+    { "name": "icpx-minsizerel", "displayName": "Intel icpx MinSizeRel", "inherits": ["icpx", "minsizerel"] },
+    { "name": "icpx-profile", "displayName": "Intel icpx Profile", "inherits": ["icpx", "profile"] }
+  ],
+  "buildPresets": [
+    { "name": "icpx-debug", "configurePreset": "icpx-debug" },
+    { "name": "icpx-release", "configurePreset": "icpx-release" },
+    { "name": "icpx-minsizerel", "configurePreset": "icpx-minsizerel" },
+    { "name": "icpx-profile", "configurePreset": "icpx-profile" }
+  ],
+  "testPresets": [
+    { "name": "icpx-debug", "configurePreset": "icpx-debug", "output": { "outputOnFailure": true } },
+    { "name": "icpx-release", "configurePreset": "icpx-release", "output": { "outputOnFailure": true } },
+    { "name": "icpx-minsizerel", "configurePreset": "icpx-minsizerel", "output": { "outputOnFailure": true } },
+    { "name": "icpx-profile", "configurePreset": "icpx-profile", "output": { "outputOnFailure": true } }
+  ]
+}

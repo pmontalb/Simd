@@ -1,0 +1,41 @@
+{
+  "version": 8,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 28,
+    "patch": 0
+  },
+  "include": [
+    "base.json"
+  ],
+  "configurePresets": [
+    {
+      "name": "aocc",
+      "hidden": true,
+      "inherits": "base",
+      "description": "Base AMD AOCC toolchain preset (expects AOCC clang/clang++ in PATH or AOCC_DIR)",
+      "cacheVariables": {
+        "CMAKE_C_COMPILER": "clang",
+        "CMAKE_CXX_COMPILER": "clang++",
+        "COMPILER_FLAVOR": "AOCC",
+        "CMAKE_CXX_SCAN_FOR_MODULES": "OFF"
+      }
+    },
+    { "name": "aocc-debug", "displayName": "AMD AOCC Debug", "inherits": ["aocc", "debug"] },
+    { "name": "aocc-release", "displayName": "AMD AOCC Release", "inherits": ["aocc", "release"] },
+    { "name": "aocc-minsizerel", "displayName": "AMD AOCC MinSizeRel", "inherits": ["aocc", "minsizerel"] },
+    { "name": "aocc-profile", "displayName": "AMD AOCC Profile", "inherits": ["aocc", "profile"] }
+  ],
+  "buildPresets": [
+    { "name": "aocc-debug", "configurePreset": "aocc-debug" },
+    { "name": "aocc-release", "configurePreset": "aocc-release" },
+    { "name": "aocc-minsizerel", "configurePreset": "aocc-minsizerel" },
+    { "name": "aocc-profile", "configurePreset": "aocc-profile" }
+  ],
+  "testPresets": [
+    { "name": "aocc-debug", "configurePreset": "aocc-debug", "output": { "outputOnFailure": true } },
+    { "name": "aocc-release", "configurePreset": "aocc-release", "output": { "outputOnFailure": true } },
+    { "name": "aocc-minsizerel", "configurePreset": "aocc-minsizerel", "output": { "outputOnFailure": true } },
+    { "name": "aocc-profile", "configurePreset": "aocc-profile", "output": { "outputOnFailure": true } }
+  ]
+}

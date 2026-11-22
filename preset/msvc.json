@@ -1,0 +1,60 @@
+{
+  "version": 8,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 28,
+    "patch": 0
+  },
+  "include": [
+    "base.json"
+  ],
+  "configurePresets": [
+    {
+      "name": "msvc",
+      "hidden": true,
+      "inherits": "base",
+      "description": "Base MSVC toolchain preset (run inside Visual Studio Developer Command Prompt)",
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Windows"
+      },
+      "cacheVariables": {
+        "CMAKE_C_COMPILER": "cl",
+        "CMAKE_CXX_COMPILER": "cl",
+        "COMPILER_FLAVOR": "MSVC",
+        "OPTIMIZATIONS_USE_NATIVE_ARCHITECTURE": "OFF"
+      }
+    },
+    { "name": "msvc-debug", "displayName": "MSVC Debug", "inherits": ["msvc", "debug"] },
+    {
+      "name": "msvc-release",
+      "displayName": "MSVC Release",
+      "inherits": ["msvc", "release"],
+      "cacheVariables": {
+        "OPTIMIZATIONS_USE_NATIVE_ARCHITECTURE": "OFF"
+      }
+    },
+    { "name": "msvc-minsizerel", "displayName": "MSVC MinSizeRel", "inherits": ["msvc", "minsizerel"] },
+    {
+      "name": "msvc-profile",
+      "displayName": "MSVC Profile",
+      "inherits": ["msvc", "profile"],
+      "cacheVariables": {
+        "OPTIMIZATIONS_USE_NATIVE_ARCHITECTURE": "OFF"
+      }
+    }
+  ],
+  "buildPresets": [
+    { "name": "msvc-debug", "configurePreset": "msvc-debug" },
+    { "name": "msvc-release", "configurePreset": "msvc-release" },
+    { "name": "msvc-minsizerel", "configurePreset": "msvc-minsizerel" },
+    { "name": "msvc-profile", "configurePreset": "msvc-profile" }
+  ],
+  "testPresets": [
+    { "name": "msvc-debug", "configurePreset": "msvc-debug", "output": { "outputOnFailure": true } },
+    { "name": "msvc-release", "configurePreset": "msvc-release", "output": { "outputOnFailure": true } },
+    { "name": "msvc-minsizerel", "configurePreset": "msvc-minsizerel", "output": { "outputOnFailure": true } },
+    { "name": "msvc-profile", "configurePreset": "msvc-profile", "output": { "outputOnFailure": true } }
+  ]
+}
