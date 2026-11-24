@@ -10,6 +10,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <cstring>
+#include <limits>
 #include <type_traits>
 
 namespace simd
@@ -170,7 +171,7 @@ namespace simd
 
 		constexpr Mask() noexcept = default;
 
-		[[nodiscard]] static inline Mask FromNative(const NativeMask m) noexcept
+		[[nodiscard]] static SIMD_ALWAYS_INLINE Mask FromNative(const NativeMask m) noexcept
 		{
 			Mask res;
 			res._storage.vec = m;
@@ -184,7 +185,7 @@ namespace simd
 			return res;
 		}
 
-		[[nodiscard]] inline NativeMask Native() const noexcept { return _storage.vec; }
+		[[nodiscard]] SIMD_ALWAYS_INLINE NativeMask Native() const noexcept { return _storage.vec; }
 		[[nodiscard]] constexpr std::array<bool, Lanes> Scalar() const noexcept { return _storage.scalar; }
 
 	private:
@@ -194,7 +195,7 @@ namespace simd
 			NativeMask vec;
 		} _storage;
 
-		[[nodiscard]] static inline NativeMask ZeroNative() noexcept
+		[[nodiscard]] static SIMD_ALWAYS_INLINE NativeMask ZeroNative() noexcept
 		{
 			if constexpr (!detail::NativeTypes<T, Lanes>::isHardware)
 				return {};
@@ -260,7 +261,7 @@ namespace simd
 		constexpr explicit Pack(const Arg0 arg0, const Arg1 arg1, const Rest... rest) noexcept
 		{
 			const std::array<T, Lanes> arr { static_cast<T>(arg0), static_cast<T>(arg1), static_cast<T>(rest)... };
-			*this = std::is_constant_evaluated() ? FromScalar(arr) : LoadUnaligned(arr.data());
+			*this = std::is_constant_evaluated() ? FromScalar(arr) : LoadUnaligned(arr.data());  // LCOV_EXCL_LINE
 		}
 
 		constexpr explicit Pack(const AlignedArray& arr) noexcept
@@ -276,7 +277,7 @@ namespace simd
 		[[nodiscard]] static constexpr std::size_t LanesCount() noexcept { return Lanes; }
 		[[nodiscard]] static constexpr std::size_t Alignment() noexcept { return alignment; }
 
-		[[nodiscard]] static inline Pack FromNative(const NativeVec v) noexcept
+		[[nodiscard]] static SIMD_ALWAYS_INLINE Pack FromNative(const NativeVec v) noexcept
 		{
 			Pack p;
 			p._storage.vec = v;
@@ -290,7 +291,7 @@ namespace simd
 			return p;
 		}
 
-		[[nodiscard]] inline NativeVec Native() const noexcept { return _storage.vec; }
+		[[nodiscard]] SIMD_ALWAYS_INLINE NativeVec Native() const noexcept { return _storage.vec; }
 
 		// --------------------------------------------------------------------
 		// Construction / Load / Store
@@ -1168,7 +1169,7 @@ namespace simd
 			NativeVec vec;
 		} _storage;
 
-		[[nodiscard]] static inline NativeVec ZeroNative() noexcept
+		[[nodiscard]] static SIMD_ALWAYS_INLINE NativeVec ZeroNative() noexcept
 		{
 			if constexpr (!isHardware)
 				return {};
@@ -1212,7 +1213,7 @@ namespace simd
 		}
 
 #if SIMD_HAS_AVX2
-		[[nodiscard]] static inline __m256i Avx2PartialMask(const std::size_t validLanes) noexcept
+		[[nodiscard]] static SIMD_ALWAYS_INLINE __m256i Avx2PartialMask(const std::size_t validLanes) noexcept
 		{
 			if constexpr (sizeof(T) == 4)
 			{
@@ -1297,9 +1298,97 @@ namespace simd
 	}
 
 	template<SupportedElement T, std::size_t Lanes>
-	constexpr void StorePartial(T* const ptr, const Pack<T, Lanes> p, const std::size_t validLanes) noexcept
+	SIMD_ALWAYS_INLINE constexpr void StorePartial(T* const ptr, const Pack<T, Lanes> p, const std::size_t validLanes) noexcept
 	{
 		p.StorePartial(ptr, validLanes);
+	}
+
+	namespace detail
+	{
+		template<SupportedElement T, std::size_t Lanes>
+		struct StridedIndexTraits
+		{
+			static constexpr std::size_t maxGatherInc = static_cast<std::size_t>((std::numeric_limits<std::int32_t>::max)() / static_cast<std::int32_t>(Lanes));
+		};
+
+#if SIMD_HAS_AVX512F
+		[[nodiscard]] SIMD_ALWAYS_INLINE __m512i MakeGatherIndices32x16(const std::size_t inc) noexcept
+		{
+			const auto step = static_cast<std::int32_t>(inc);
+			return _mm512_set_epi32(15 * step, 14 * step, 13 * step, 12 * step, 11 * step, 10 * step, 9 * step, 8 * step, 7 * step, 6 * step, 5 * step, 4 * step, 3 * step, 2 * step, step, 0);
+		}
+#endif
+
+#if SIMD_HAS_AVX512F || SIMD_HAS_AVX2
+		[[nodiscard]] SIMD_ALWAYS_INLINE __m256i MakeGatherIndices32x8(const std::size_t inc) noexcept
+		{
+			const auto step = static_cast<std::int32_t>(inc);
+			return _mm256_set_epi32(7 * step, 6 * step, 5 * step, 4 * step, 3 * step, 2 * step, step, 0);
+		}
+
+		[[nodiscard]] SIMD_ALWAYS_INLINE __m128i MakeGatherIndices32x4(const std::size_t inc) noexcept
+		{
+			const auto step = static_cast<std::int32_t>(inc);
+			return _mm_set_epi32(3 * step, 2 * step, step, 0);
+		}
+#endif
+	}	 // namespace detail
+
+	template<SupportedElement T, std::size_t Lanes = LaneCount<T>()>
+	[[nodiscard]] SIMD_ALWAYS_INLINE constexpr Pack<T, Lanes> LoadStrided(const T* const __restrict ptr, const std::size_t inc) noexcept
+	{
+		if constexpr (Lanes == 1)
+		{
+			typename Pack<T, Lanes>::AlignedArray arr { ptr[0] };
+			return Pack<T, Lanes>(arr);
+		}
+		else
+		{
+			if (!std::is_constant_evaluated())
+			{
+#if SIMD_HAS_AVX512F
+				if (inc <= detail::StridedIndexTraits<T, Lanes>::maxGatherInc)
+				{
+					if constexpr (std::same_as<T, float> && Lanes == 16)
+						return Pack<float, 16>::FromNative(_mm512_i32gather_ps(detail::MakeGatherIndices32x16(inc), ptr, static_cast<int>(sizeof(float))));
+					else if constexpr (std::same_as<T, double> && Lanes == 8)
+						return Pack<double, 8>::FromNative(_mm512_i32gather_pd(detail::MakeGatherIndices32x8(inc), ptr, static_cast<int>(sizeof(double))));
+					else if constexpr (std::same_as<T, float> && Lanes == 8)
+						return Pack<float, 8>::FromNative(_mm256_i32gather_ps(ptr, detail::MakeGatherIndices32x8(inc), static_cast<int>(sizeof(float))));
+					else if constexpr (std::same_as<T, double> && Lanes == 4)
+						return Pack<double, 4>::FromNative(_mm256_i32gather_pd(ptr, detail::MakeGatherIndices32x4(inc), static_cast<int>(sizeof(double))));
+				}
+#elif SIMD_HAS_AVX2
+				if (inc <= detail::StridedIndexTraits<T, Lanes>::maxGatherInc)
+				{
+					if constexpr (std::same_as<T, float> && Lanes == 8)
+						return Pack<float, 8>::FromNative(_mm256_i32gather_ps(ptr, detail::MakeGatherIndices32x8(inc), static_cast<int>(sizeof(float))));
+					else if constexpr (std::same_as<T, double> && Lanes == 4)
+						return Pack<double, 4>::FromNative(_mm256_i32gather_pd(ptr, detail::MakeGatherIndices32x4(inc), static_cast<int>(sizeof(double))));
+				}
+#endif
+			}
+			typename Pack<T, Lanes>::AlignedArray arr {};
+			for (std::size_t k = 0; k < Lanes; ++k)
+				arr[k] = ptr[k * inc];
+			return Pack<T, Lanes>(arr);
+		}
+	}
+
+	template<SupportedElement T, std::size_t Lanes>
+	SIMD_ALWAYS_INLINE constexpr void StoreStrided(T* const __restrict ptr, const std::size_t inc, const Pack<T, Lanes> p) noexcept
+	{
+		if constexpr (Lanes == 1)
+		{
+			ptr[0] = p.ToArray()[0];
+		}
+		else
+		{
+			typename Pack<T, Lanes>::AlignedArray arr {};
+			StoreAligned(arr.data(), p);
+			for (std::size_t k = 0; k < Lanes; ++k)
+				ptr[k * inc] = arr[k];
+		}
 	}
 
 	// ========================================================================
@@ -1540,7 +1629,7 @@ namespace simd
 	}
 
 	template<std::floating_point T, std::size_t Lanes>
-	[[nodiscard]] inline Pack<T, Lanes> Sqrt(const Pack<T, Lanes> a) noexcept
+	[[nodiscard]] SIMD_ALWAYS_INLINE Pack<T, Lanes> Sqrt(const Pack<T, Lanes> a) noexcept
 	{
 		if constexpr (!Pack<T, Lanes>::isHardware)
 		{

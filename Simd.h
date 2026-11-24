@@ -60,7 +60,7 @@ namespace simd
 	}
 
 	template<std::floating_point T, std::size_t Lanes>
-	[[nodiscard]] inline Pack<T, Lanes> sqrt(const Pack<T, Lanes> x) noexcept
+	[[nodiscard]] SIMD_ALWAYS_INLINE Pack<T, Lanes> sqrt(const Pack<T, Lanes> x) noexcept
 	{
 		return Sqrt(x);
 	}

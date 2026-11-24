@@ -39,7 +39,7 @@ namespace simdt
 			std::array<double, 5> x { -2.0, 4.0, -1.0, 3.0, -5.0 };
 			std::array<double, 5> y { 1.0, 1.0, 1.0, 1.0, 1.0 };
 			simd::Axpy(y.data(), x.data(), 2.0, x.size());
-			const double sq = simd::SumOfSquares(x.data(), x.size());
+			const double sq = simd::EuclideanNormSquared(x.data(), x.size());
 			const double asum = simd::ReduceAbsSum(x.data(), x.size());
 			const double mn = simd::ReduceMin(x.data(), x.size());
 			const double mx = simd::ReduceMax(x.data(), x.size());
@@ -193,7 +193,7 @@ namespace simdt
 				expectedAbsMax = std::max(expectedAbsMax, std::abs(x[i]));
 			}
 
-			EXPECT_NEAR(simd::SumOfSquares(x.data(), n), expectedSq, 1e-10);
+			EXPECT_NEAR(simd::EuclideanNormSquared(x.data(), n), expectedSq, 1e-10);
 			EXPECT_NEAR(simd::ReduceAbsSum(x.data(), n), expectedAbsSum, 1e-10);
 			EXPECT_DOUBLE_EQ(simd::ReduceMin(x.data(), n), expectedMin);
 			EXPECT_DOUBLE_EQ(simd::ReduceMax(x.data(), n), expectedMax);
@@ -306,7 +306,7 @@ namespace simdt
 			});
 		EXPECT_DOUBLE_EQ((simd::DotProduct<double, 2>(data.data(), data.data(), data.size())), 35.0 * 16.0);
 		EXPECT_DOUBLE_EQ((simd::ReduceSum<double, 2>(data.data(), data.size())), 35.0 * 4.0);
-		EXPECT_DOUBLE_EQ((simd::SumOfSquares<double, 2>(data.data(), data.size())), 35.0 * 16.0);
+		EXPECT_DOUBLE_EQ((simd::EuclideanNormSquared<double, 2>(data.data(), data.size())), 35.0 * 16.0);
 		EXPECT_DOUBLE_EQ((simd::ReduceAbsSum<double, 2>(data.data(), data.size())), 35.0 * 4.0);
 		EXPECT_DOUBLE_EQ((simd::ReduceMin<double, 2>(data.data(), data.size())), 4.0);
 		EXPECT_DOUBLE_EQ((simd::ReduceMax<double, 2>(data.data(), data.size())), 4.0);
@@ -321,5 +321,90 @@ namespace simdt
 		EXPECT_EQ(simd::HorizontalMax(i32res), static_cast<std::int32_t>(2 * simd::LaneCount<std::int32_t>()));
 		EXPECT_EQ(simd::Abs(-i32a)[0], 1);
 		EXPECT_EQ((i32a | i32b)[0], 3);
+	}
+
+	TEST(PackTests, AxpyLargePrefetchAndTail)
+	{
+		std::vector<double> ax(8205, 1.5);
+		std::vector<double> ay(8205, 2.0);
+		simd::Axpy(ay.data(), ax.data(), 2.0, ay.size());
+		EXPECT_DOUBLE_EQ(ay[0], 5.0);
+		EXPECT_DOUBLE_EQ(ay[8204], 5.0);
+	}
+
+	TEST(PackTests, SubWidthEvenRemainder)
+	{
+		const std::array<double, 2> d2a { 3.0, -4.0 };
+		const std::array<double, 2> d2b { 2.0, 5.0 };
+		EXPECT_DOUBLE_EQ(simd::DotProduct(d2a.data(), d2b.data(), 2), -14.0);
+		EXPECT_DOUBLE_EQ(simd::ReduceAbsSum(d2a.data(), 2), 7.0);
+	}
+
+	TEST(PackTests, ArgMinMaxAbsTail)
+	{
+		const std::array<double, 7> extArr { 2.0, -3.0, 4.0, -5.0, 6.0, 7.0, -20.0 };
+		EXPECT_EQ(simd::ArgMaxAbs(extArr.data(), extArr.size()), 6u);
+		const std::array<double, 7> minArr { -10.0, 9.0, -8.0, 7.0, -6.0, 5.0, -0.25 };
+		EXPECT_EQ(simd::ArgMinAbs(minArr.data(), minArr.size()), 6u);
+	}
+
+	TEST(PackTests, ReduceExtremumSubWidthAndMiddle)
+	{
+		const std::array<double, 2> d2 { 3.0, -4.0 };
+		EXPECT_DOUBLE_EQ(simd::ReduceMin(d2.data(), 2), -4.0);
+		EXPECT_DOUBLE_EQ(simd::ReduceMax(d2.data(), 2), 3.0);
+		EXPECT_DOUBLE_EQ(simd::ReduceAbsMin(d2.data(), 2), 3.0);
+		EXPECT_DOUBLE_EQ(simd::ReduceAbsMax(d2.data(), 2), 4.0);
+
+		const std::array<double, 8> d8 { -3.0, 5.0, -1.0, 4.0, 2.0, -7.0, 6.0, 0.5 };
+		EXPECT_DOUBLE_EQ((simd::ReduceMin<double, 4>(d8.data(), d8.size())), -7.0);
+		EXPECT_DOUBLE_EQ((simd::ReduceMax<double, 4>(d8.data(), d8.size())), 6.0);
+		EXPECT_DOUBLE_EQ((simd::ReduceAbsMin<double, 4>(d8.data(), d8.size())), 0.5);
+		EXPECT_DOUBLE_EQ((simd::ReduceAbsMax<double, 4>(d8.data(), d8.size())), 7.0);
+	}
+
+	TEST(PackTests, ForEachUnrolledSingleStep)
+	{
+		std::array<double, 4> fe { 1.0, 2.0, 3.0, 4.0 };
+		simd::ForEachUnrolled<double, 4>(
+			fe.size(),
+			[&](const std::size_t) {},
+			[&](const std::size_t i) { fe[i] += 1.0; },
+			[&](const std::size_t, const std::size_t) {});
+		EXPECT_DOUBLE_EQ(fe[0], 2.0);
+	}
+
+	TEST(PackTests, MaskAndPackFromScalarRuntime)
+	{
+		std::array<bool, 4> mb { true, false, true, false };
+		const auto mRuntime = simd::Mask<double, 4>::FromScalar(mb);
+		EXPECT_TRUE(mRuntime.Scalar()[0]);
+		EXPECT_FALSE(mRuntime.Scalar()[1]);
+
+		std::array<double, 4> pb { 1.0, 2.0, 3.0, 4.0 };
+		const auto pRuntime = simd::Pack<double, 4>::FromScalar(pb);
+		EXPECT_DOUBLE_EQ(pRuntime[2], 3.0);
+	}
+
+	TEST(PackTests, BlendFloatMaskToInt32)
+	{
+		const auto fMask = simd::CmpLess(simd::Iota<float>(0.0f, 1.0f), simd::Broadcast<float>(4.0f));
+		const auto i32Sel = simd::Blend(fMask, simd::Broadcast<std::int32_t>(10), simd::Broadcast<std::int32_t>(20));
+		EXPECT_EQ(i32Sel[0], 10);
+		EXPECT_EQ(i32Sel[4], 20);
+	}
+
+	TEST(PackTests, LoadStorePartialFullWidthAndInt128)
+	{
+		const std::array<double, 4> d4 { -3.0, 5.0, -1.0, 4.0 };
+		const auto lpFull = simd::LoadPartial<double, 4>(d4.data(), 4);
+		EXPECT_DOUBLE_EQ(lpFull[3], 4.0);
+		std::array<double, 4> spFull {};
+		simd::StorePartial(spFull.data(), lpFull, 4);
+		EXPECT_DOUBLE_EQ(spFull[3], 4.0);
+
+		std::array<std::int32_t, 4> i128Dst {};
+		simd::StoreUnaligned(i128Dst.data(), simd::Pack<std::int32_t, 4>::Broadcast(42));
+		EXPECT_EQ(i128Dst[3], 42);
 	}
 }	 // namespace simdt

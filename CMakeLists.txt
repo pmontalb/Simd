@@ -32,4 +32,6 @@ if (CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
 		SYSTEM_DEPENDENCIES
 			gtest pthread
 	)
+	include(GoogleTest)
+	gtest_discover_tests(SimdTests)
 endif()

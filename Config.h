@@ -68,6 +68,42 @@
 #endif
 
 // ============================================================================
+// Force-Inline & Assume Hints
+// ============================================================================
+
+#if defined(__NO_INLINE__)
+	#define SIMD_ALWAYS_INLINE_ATTR
+	#define SIMD_NOEXCEPT_ALWAYS_INLINE noexcept
+	#define SIMD_ALWAYS_INLINE          inline
+#elif defined(__clang__)
+	#define SIMD_ALWAYS_INLINE_ATTR     __attribute__((__always_inline__))
+	#define SIMD_NOEXCEPT_ALWAYS_INLINE __attribute__((__always_inline__)) noexcept
+	#define SIMD_ALWAYS_INLINE          __attribute__((__always_inline__)) inline
+#elif defined(__GNUC__)
+	#define SIMD_ALWAYS_INLINE_ATTR     __attribute__((__always_inline__))
+	#define SIMD_NOEXCEPT_ALWAYS_INLINE noexcept __attribute__((__always_inline__))
+	#define SIMD_ALWAYS_INLINE          __attribute__((__always_inline__)) inline
+#elif defined(_MSC_VER)
+	#define SIMD_ALWAYS_INLINE_ATTR     [[msvc::forceinline]]
+	#define SIMD_NOEXCEPT_ALWAYS_INLINE noexcept [[msvc::forceinline]]
+	#define SIMD_ALWAYS_INLINE          __forceinline
+#else
+	#define SIMD_ALWAYS_INLINE_ATTR
+	#define SIMD_NOEXCEPT_ALWAYS_INLINE noexcept
+	#define SIMD_ALWAYS_INLINE          inline
+#endif
+
+#if __cplusplus >= 202302L && defined(__has_cpp_attribute)
+	#if __has_cpp_attribute(assume) >= 202207L
+		#define SIMD_ASSUME(expr) [[assume(expr)]]
+	#else
+		#define SIMD_ASSUME(expr) static_cast<void>(0)
+	#endif
+#else
+	#define SIMD_ASSUME(expr) static_cast<void>(0)
+#endif
+
+// ============================================================================
 // Warning-Safe Intrinsics Include
 // ============================================================================
 
@@ -141,7 +177,7 @@ namespace simd
 
 	namespace detail
 	{
-		[[nodiscard]] inline bool IsAligned(const void* ptr, const std::size_t alignment) noexcept
+		[[nodiscard]] SIMD_ALWAYS_INLINE bool IsAligned(const void* ptr, const std::size_t alignment) noexcept
 		{
 			const auto addr = reinterpret_cast<std::uintptr_t>(ptr);
 			return (addr & (alignment - 1)) == 0;
