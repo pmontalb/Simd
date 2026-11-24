@@ -1,19 +1,20 @@
-add_subdirectory(${CMAKE_SOURCE_DIR}/submodules/gtest ${CMAKE_BINARY_DIR}/Simd/gtest EXCLUDE_FROM_ALL)
+if (NOT CMAKE_BUILD_TYPE STREQUAL "Msan")
+	find_package(GTest REQUIRED)
+	find_package(Threads REQUIRED)
 
-create_test(
-    NAME
-        SimdTests
-    SOURCES
-        Double2Tests.cpp
-        Float4Tests.cpp
-        Double4Tests.cpp
-        Float8Tests.cpp
-        PackTests.cpp
-        main.cpp
-    PUBLIC_INCLUDE_DIRECTORIES
-        ${GTEST_INCLUDE_DIR}
-    DEPENDENCIES
-        Simd
-    SYSTEM_DEPENDENCIES
-        gtest pthread
-)
+	create_test(
+		NAME
+			SimdTests
+		SOURCES
+			Double2Tests.cpp
+			Float4Tests.cpp
+			Double4Tests.cpp
+			Float8Tests.cpp
+			PackTests.cpp
+			main.cpp
+		DEPENDENCIES
+			Simd
+		SYSTEM_DEPENDENCIES
+			GTest::gtest Threads::Threads
+	)
+endif()

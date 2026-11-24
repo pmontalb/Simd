@@ -2,12 +2,6 @@
 	path = cmake
 	url = git@github.com:pmontalb/CmakeUtilities.git
 
-[submodule "googletest"]
-	path = gtest
-	url = git@github.com:google/googletest.git
-[submodule "gtest"]
-	path = gtest
-	url = git@github.com:google/googletest.git
 [submodule "cxxopts"]
 	path = cxxopts
 	url = git@github.com:jarro2783/cxxopts.git
