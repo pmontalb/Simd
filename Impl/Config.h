@@ -107,7 +107,7 @@
 // Warning-Safe Intrinsics Include
 // ============================================================================
 
-#include "IgnoreWarning.h"
+#include "../IgnoreWarning.h"
 
 #if defined(__x86_64__) || defined(_M_X64) || defined(__i386__) || defined(_M_IX86)
 	IGNORE_WARNING_PUSH()

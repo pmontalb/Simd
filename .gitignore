@@ -4,3 +4,4 @@
 *.swn
 
 cmake-build-*
+cmake/preset/user/

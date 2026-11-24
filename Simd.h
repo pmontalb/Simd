@@ -1,9 +1,9 @@
 #pragma once
 
-#include "Config.h"
-#include "Pack.h"
-#include "Math.h"
-#include "Algorithms.h"
+#include "Impl/Config.h"
+#include "Impl/Algorithms.h"
+#include "Impl/Math.h"
+#include "Impl/Pack.h"
 
 #include <cstdint>
 

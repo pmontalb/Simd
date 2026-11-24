@@ -19,7 +19,7 @@ A zero-overhead, C++20 header-only SIMD library providing trivial POD register w
 | **SSE2 / SSE4.1** (`__SSE2__`) | 4 | 2 | 16 bytes |
 | **Scalar / `constexpr`** | 1 | 1 | `alignof(T)` |
 
-Available in `Config.h`:
+Available in `Impl/Config.h`:
 - `simd::LaneCount<T>()`
 - `simd::AlignmentBytes<T>()` / `simd::MaxAlignmentBytes`
 - `simd::AssumeAligned<T>(ptr)`
@@ -69,7 +69,7 @@ simd::Double4 Rotate(const simd::Double4 x, const simd::Double4 y, const double 
 }
 ```
 
-### 3. High-Level Algorithms (`Algorithms.h`)
+### 3. High-Level Algorithms (`Impl/Algorithms.h`)
 
 ```cpp
 #include <Simd.h>
@@ -125,17 +125,17 @@ void Axpby(double* const __restrict y, const double* const __restrict x, const d
 
 ## API Reference
 
-- **Construction / Load / Store (`Pack.h`)**:
+- **Construction / Load / Store (`Impl/Pack.h`)**:
   `Zero<T>()`, `Broadcast(value)`, `Iota(start, step)`, `LoadAligned(ptr)`, `LoadUnaligned(ptr)`, `LoadPartial(ptr, validLanes)`, `StoreAligned(ptr, pack)`, `StoreUnaligned(ptr, pack)`, `StorePartial(ptr, pack, validLanes)`
-- **Arithmetic & FMA (`Pack.h`)**:
+- **Arithmetic & FMA (`Impl/Pack.h`)**:
   `+`, `-`, `*`, `/` (pack-pack and pack-scalar), `Fma(a, b, c)`, `Fms(a, b, c)`, `Fnma(a, b, c)`, `Reciprocal(a)`, `Abs(a)`, `Sqrt(a)`, `Min(a, b)`, `Max(a, b)`
-- **Horizontal Reductions (`Pack.h`)**:
+- **Horizontal Reductions (`Impl/Pack.h`)**:
   `HorizontalSum(a)`, `HorizontalMin(a)`, `HorizontalMax(a)`
-- **Comparisons, Blending & Conversions (`Pack.h`)**:
+- **Comparisons, Blending & Conversions (`Impl/Pack.h`)**:
   `CmpLess(a, b)`, `CmpGreater(a, b)`, `Blend(mask, ifTrue, ifFalse)`, `BitCast<DstT>(a)`, `RoundToNearest(a)`, `ConvertToInt(a)`, `ConvertToFloat<DstT>(a)`
-- **Transcendental & Trigonometric (`Math.h`)**:
+- **Transcendental & Trigonometric (`Impl/Math.h`)**:
   `Exp(a)`, `Log(a)`, `Sin(a)`, `Cos(a)`
-- **Algorithms (`Algorithms.h`)**:
+- **Algorithms (`Impl/Algorithms.h`)**:
   `ForEachUnrolled<T, Unroll>`, `DotProduct`, `Axpy`, `SumOfSquares`, `ReduceSum`, `ReduceAbsSum`, `ReduceMin`, `ReduceMax`, `ReduceAbsMin`, `ReduceAbsMax`, `ArgMaxAbs`, `ArgMinAbs`
 
 ## Building & Testing
