@@ -8,7 +8,7 @@ if (PROJECT_IS_TOP_LEVEL)
 endif()
 
 add_library(Simd INTERFACE)
-target_include_directories(Simd INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
+target_include_directories(Simd SYSTEM INTERFACE .)
 target_compile_features(Simd INTERFACE cxx_std_20)
 
 if (PROJECT_IS_TOP_LEVEL AND CMAKE_TESTING_ENABLED)

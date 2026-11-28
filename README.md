@@ -140,7 +140,7 @@ void Axpby(double* const __restrict y, const double* const __restrict x, const d
 
 ## Building & Testing
 
-`Simd` uses `CMakePresets.json` from the `cmake` submodule:
+`Simd` uses `../../CMakePresets.json` from the `cmake` submodule:
 
 ```bash
 cmake --preset gcc-release

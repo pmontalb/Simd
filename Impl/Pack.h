@@ -1339,7 +1339,8 @@ namespace simd
 	{
 		if constexpr (Lanes == 1)
 		{
-			typename Pack<T, Lanes>::AlignedArray arr { ptr[0] };
+			typename Pack<T, Lanes>::AlignedArray arr {};
+			arr[0] = ptr[0];
 			return Pack<T, Lanes>(arr);
 		}
 		else
@@ -1388,6 +1389,103 @@ namespace simd
 			StoreAligned(arr.data(), p);
 			for (std::size_t k = 0; k < Lanes; ++k)
 				ptr[k * inc] = arr[k];
+		}
+	}
+
+	template<SupportedElement T, std::size_t Lanes = LaneCount<T>()>
+	[[nodiscard]] SIMD_ALWAYS_INLINE constexpr Pack<T, Lanes> Gather(const T* const __restrict base, const int* const __restrict indices) noexcept
+	{
+		if constexpr (Lanes == 1)
+		{
+			typename Pack<T, Lanes>::AlignedArray arr {};
+			arr[0] = base[indices[0]];
+			return Pack<T, Lanes>(arr);
+		}
+		else
+		{
+			if (!std::is_constant_evaluated())
+			{
+#if SIMD_HAS_AVX512F
+				if constexpr (std::same_as<T, float> && Lanes == 16)
+				{
+					// NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
+					const __m512i vIdx = _mm512_loadu_si512(reinterpret_cast<const __m512i*>(indices));
+					return Pack<float, 16>::FromNative(_mm512_i32gather_ps(vIdx, base, static_cast<int>(sizeof(float))));
+				}
+				else if constexpr (std::same_as<T, double> && Lanes == 8)
+				{
+					// NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
+					const __m256i vIdx = _mm256_loadu_si256(reinterpret_cast<const __m256i*>(indices));
+					return Pack<double, 8>::FromNative(_mm512_i32gather_pd(vIdx, base, static_cast<int>(sizeof(double))));
+				}
+				else if constexpr (std::same_as<T, float> && Lanes == 8)
+				{
+					// NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
+					const __m256i vIdx = _mm256_loadu_si256(reinterpret_cast<const __m256i*>(indices));
+					return Pack<float, 8>::FromNative(_mm256_i32gather_ps(base, vIdx, static_cast<int>(sizeof(float))));
+				}
+				else if constexpr (std::same_as<T, double> && Lanes == 4)
+				{
+					// NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
+					const __m128i vIdx = _mm_loadu_si128(reinterpret_cast<const __m128i*>(indices));
+					return Pack<double, 4>::FromNative(_mm256_i32gather_pd(base, vIdx, static_cast<int>(sizeof(double))));
+				}
+#elif SIMD_HAS_AVX2
+				if constexpr (std::same_as<T, float> && Lanes == 8)
+				{
+					// NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
+					const __m256i vIdx = _mm256_loadu_si256(reinterpret_cast<const __m256i*>(indices));
+					return Pack<float, 8>::FromNative(_mm256_i32gather_ps(base, vIdx, static_cast<int>(sizeof(float))));
+				}
+				else if constexpr (std::same_as<T, double> && Lanes == 4)
+				{
+					// NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
+					const __m128i vIdx = _mm_loadu_si128(reinterpret_cast<const __m128i*>(indices));
+					return Pack<double, 4>::FromNative(_mm256_i32gather_pd(base, vIdx, static_cast<int>(sizeof(double))));
+				}
+#endif
+			}
+			// LCOV_EXCL_START
+			typename Pack<T, Lanes>::AlignedArray arr {};
+			for (std::size_t k = 0; k < Lanes; ++k)
+				arr[k] = base[indices[k]];
+			return Pack<T, Lanes>(arr);
+			// LCOV_EXCL_STOP
+		}
+	}
+
+	template<SupportedElement T, std::size_t Lanes>
+	SIMD_ALWAYS_INLINE constexpr void Scatter(T* const __restrict base, const int* const __restrict indices, const Pack<T, Lanes> p) noexcept
+	{
+		if constexpr (Lanes == 1)
+		{
+			base[indices[0]] = p.ToArray()[0];
+		}
+		else
+		{
+			if (!std::is_constant_evaluated())
+			{
+#if SIMD_HAS_AVX512F
+				if constexpr (std::same_as<T, float> && Lanes == 16)
+				{
+					// NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
+					const __m512i vIdx = _mm512_loadu_si512(reinterpret_cast<const __m512i*>(indices));
+					_mm512_i32scatter_ps(base, vIdx, p.Native(), static_cast<int>(sizeof(float)));
+					return;
+				}
+				else if constexpr (std::same_as<T, double> && Lanes == 8)
+				{
+					// NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
+					const __m256i vIdx = _mm256_loadu_si256(reinterpret_cast<const __m256i*>(indices));
+					_mm512_i32scatter_pd(base, vIdx, p.Native(), static_cast<int>(sizeof(double)));
+					return;
+				}
+#endif
+			}
+			typename Pack<T, Lanes>::AlignedArray arr {};
+			StoreAligned(arr.data(), p);
+			for (std::size_t k = 0; k < Lanes; ++k)
+				base[indices[k]] = arr[k];
 		}
 	}
 

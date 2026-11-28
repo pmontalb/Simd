@@ -3,5 +3,5 @@
 *.swo
 *.swn
 
-cmake-build-*
+cmake-build-gcc-coverage
 cmake/preset/user/
